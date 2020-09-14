@@ -1,3 +1,5 @@
+
+-- ECLUSA STEP1
 --
 -- Eclusa de dados: trata os dados do upload e os transfere para a ingestão.
 -- (Data Canal-lock)
@@ -15,6 +17,7 @@ CREATE EXTENSION IF NOT EXISTS file_fdw;
 CREATE SERVER    IF NOT EXISTS files FOREIGN DATA WRAPPER file_fdw;
 
 CREATE schema    IF NOT EXISTS ingest;
+CREATE schema    IF NOT EXISTS optim;
 CREATE schema    IF NOT EXISTS tmp_orig;
 
 ----
@@ -49,23 +52,33 @@ $$ LANGUAGE SQL IMMUTABLE;
 
 
 -- -- -- -- -- -- -- -- --
--- inicializações DATASETS:
+-- inicializações OPTIM:
 
-CREATE TABLE ingest.city ( -- only current city
-  ibge_id int   NOT NULL PRIMARY KEY, -- BR official id, control
+CREATE TABLE optim.jurisdiction ( -- only current
+  -- need a view vw01current_jurisdiction to avoid the lost of non-current.
+  -- https://schema.org/AdministrativeArea or https://schema.org/jurisdiction ?
+  -- OSM use AdminLevel, etc. but LexML uses Jurisdiction.
+  osm_id bigint PRIMARY KEY, -- official or adapted geometry. AdministrativeArea.
+  jurisd_id int NOT NULL,  -- ISO numeric COUNTRY ID or negative for non-iso (ex. oceans)
+  -- ISO3166-1-numeric for Brazil is 076,
+  local_jurisd_id int   NOT NULL, -- numeric official ID like IBGE_ID of BR jurisdiction.
+  -- for example BR's ACRE is 12 and its cities are 1200013, 1200054 etc.
   name    text  NOT NULL CHECK(length(name)<60), -- admin-level3
   state   text  NOT NULL CHECK(length(state)=2), -- UF, admin-level2
   abbrev3 text  CHECK(length(abbrev3)=3),
   wikidata_id  bigint,  --  from '^Q\d+'
   lexlabel     text NOT NULL,  -- cache from name. 'sao.paulo'
   isolabel_ext text NOT NULL,  -- cache from name and state. BR-SP-SaoPaulo
-  ddd          integer,
-  info JSONb, -- postalCode_ranges, notes,   creation, extinction
-  UNIQUE(state,name),
-  UNIQUE(state,lexlabel)
+  ddd          integer, -- Direct distance dialing
+  info JSONb -- postalCode_ranges, notes,   creation, extinction, etc.
+  ,UNIQUE(jurisd_id,local_jurisd_id)
+  ,UNIQUE(jurisd_id,state,name)
+  ,UNIQUE(jurisd_id,state,lexlabel)
+  ,UNIQUE(jurisd_id,state,lexlabel)
+  ,UNIQUE(jurisd_id,state,abbrev3)
 );
 
-CREATE TABLE ingest.donor (
+CREATE TABLE optim.donor (
   id serial NOT NULL primary key,
   scope text, -- city code or country code
   vat_id text,
@@ -77,50 +90,39 @@ CREATE TABLE ingest.donor (
   UNIQUE(vat_id),
   UNIQUE(scope,legalName)
 );
--- -- -- -- -- -- -- -- --
--- inicializações INGEST:
-
-CREATE TABLE IF NOT EXISTS ingest.donatedPack(
+CREATE TABLE IF NOT EXISTS optim.donatedPack(
   pack_id int NOT NULL PRIMARY KEY,
-  donor_id int NOT NULL REFERENCES ingest.donor(id),
+  donor_id int NOT NULL REFERENCES optim.donor(id),
   accepted_date date,
+  config jsonb, -- parte da config de ingestão comum a todos os arquivos, vide Sampa.
+  -- example '{"staging_db":"ingest1"}' ou tmplixo1 para nao poluir std.
   about text,
   info jsonb,
   UNIQUE(pack_id)
 ); -- pack é só intermediário de agregação
-INSERT INTO ingest.donatedPack (pack_id,donor_id,accepted_date,about,info)
-  SELECT pack_id,donor_id,accepted_date::date,about,
-         jsonb_build_object(
-             'label_ref',label_ref,'creator',creator,
-             'licensedExp',licensedExp,'license_main',license_main,
-             'url_objType',url_objType, 'uri',uri
-         )
-  FROM tmp_orig.fdw_br_donatedPack
-  WHERE length(accepted_date)>=4 AND donor_id IN (select id from ingest.donor)
-ON CONFLICT DO NOTHING
-;
--- verifica por hora com: select scope,vat_ID,shortName,legalName, p.pack_id, p.donor_id from ingest.donor d inner join (select pack_id, donor_id, info->>'label_ref' labref from ingest.donatedPack) p ON p.labref=d.shortname;
--- assim podemos trocaar o antigo
 
-CREATE TABLE IF NOT EXISTS ingest.origin(
+CREATE TABLE IF NOT EXISTS optim.origin(
    id serial     NOT NULL PRIMARY KEY,
-   city_id int NOT NULL REFERENCES ingest.city(ibge_id), -- escopo dos dados, desmembrando se possível.
-   --donor_id int REFERENCES ingest.donor(id),
-   pack_id int NOT NULL REFERENCES ingest.donatedPack(pack_id), -- um ou mais origins no mesmo paxck.
+   jurisdiction_id int NOT NULL REFERENCES optim.jurisdiction(osm_id), -- escopo dos dados, desmembrando se possível.
+   conf_type_id int NOT NULL ingest.accepted_model(id),  -- .. ver accepted_model que amarra com config!
+   pack_id int NOT NULL REFERENCES optim.donatedPack(pack_id), -- um ou mais origins no mesmo paxck.
    fhash text    NOT NULL, -- sha256 is a finger print
-   cityname text NOT NULL, -- city name
+   -- jurisdname or cityname text NOT NULL, -- city name. See JOIN juisdiction_id.
    fname text    NOT NULL,  -- filename
-   fversion smallint NOT NULL DEFAULT 1, -- version counter
+   fversion smallint NOT NULL DEFAULT 1, -- version counter. Pack version or file intention version? Or only control over changes?
+   -- ou versão relativa às conig.
    ctype text, -- content type
-   config jsonb, -- example '{"staging_db":"ingest1"}' ou tmplixo1 para nao poluir std.
-   cmds text[],  -- conforme config; uso posterior para guardar sequencia de comandos.
+   kx_cmds text[],  -- conforme config; uso posterior para guardar sequencia de comandos.
    is_valid boolean NOT NULL DEFAULT false,
    is_open boolean NOT NULL DEFAULT true,
    fmeta jsonb,
    ingest_instant timestamp DEFAULT now(),
    UNIQUE(fhash),
-   UNIQUE(cityname,fname,fversion) -- ,kx_ingest_date=ingest_instant::date
+   UNIQUE(jurisdiction_id,fname,fversion) -- ,kx_ingest_date=ingest_instant::date
 );
+
+-- -- -- -- -- -- -- -- --
+-- inicializações INGEST:
 
 CREATE VIEW ingest.vw01_origin AS
   SELECT o.*,
@@ -128,9 +130,9 @@ CREATE VIEW ingest.vw01_origin AS
          c.abbrev3 AS city_abbrev3, c.isolabel_ext AS city_isolabel_ext,
          d.vat_id AS donor_vat_id, d.shortname AS donor_shortname,
          d.legalName AS donor_legalName, d.url AS donor_url
-  FROM ingest.origin o
-       INNER JOIN ingest.city c ON o.city_id=c.ibge_id
-       LEFT JOIN ingest.donor d ON o.donor_id=d.id
+  FROM optim.origin o
+       INNER JOIN optim.jurisdiction c ON o.jurisdiction_id=c.local_jurisd_id
+       LEFT JOIN optim.donatedPack d ON o.
 ;
 
 -- -- -- -- -- -- -- -- --
@@ -214,15 +216,15 @@ CREATE or replace FUNCTION eclusa.cityfolder_input( -- joined
   checksum_file text DEFAULT 'sha256sum.txt'
 ) RETURNS TABLE (fid int, cityname text, fname text, ctype text, is_valid boolean, fmeta jsonb) AS $f$
    WITH t AS (
-      SELECT cf.*, y.ibge_id, fmeta->>'fpath' AS fpath
+      SELECT cf.*, y.local_jurisd_id, fmeta->>'fpath' AS fpath
       FROM eclusa.cityfolder_input_files(p_fpath) cf
-           LEFT JOIN ingest.city y ON cf.cityname=y.isolabel_ext
+           LEFT JOIN optim.jurisdiction y ON cf.cityname=y.isolabel_ext
    )
    SELECT t.fid, t.cityname, t.fname, t.ctype,
           t.is_valid AND k2.hash is not null AS is_valid,
-          CASE WHEN t.ibge_id IS NULL THEN t.fmeta    || jsonb_build_object('is_valid_err', '#ER02: cityname unknown')
-               WHEN k2.hash is not null THEN  t.fmeta || jsonb_build_object('ibge_id',t.ibge_id, 'hash',k2.hash, 'hashtype', k2.hashtype)
-               ELSE t.fmeta || jsonb_build_object('ibge_id',t.ibge_id, 'is_valid_err', COALESCE(t.fmeta->>'is_valid_err','')||'#ER03: hash not generated; ')  END
+          CASE WHEN t.local_jurisd_id IS NULL THEN t.fmeta    || jsonb_build_object('is_valid_err', '#ER02: cityname unknown')
+               WHEN k2.hash is not null THEN  t.fmeta || jsonb_build_object('local_jurisd_id',t.local_jurisd_id, 'hash',k2.hash, 'hashtype', k2.hashtype)
+               ELSE t.fmeta || jsonb_build_object('local_jurisd_id',t.local_jurisd_id, 'is_valid_err', COALESCE(t.fmeta->>'is_valid_err','')||'#ER03: hash not generated; ')  END
    FROM t LEFT JOIN (
            SELECT k.*
            FROM (SELECT DISTINCT fmeta->>'fpath' as fpath FROM t) t2,
@@ -245,8 +247,8 @@ CREATE or replace FUNCTION ingest.cityfolder_insert(
 ) RETURNS text AS $f$
   -- idempotente no estado: chamamos a função n vezes com os mesmos parâmetros e o resultado é sempre o mesmo.
 -- SELECT datname FROM pg_stat_activity where client_port=-1 LIMIT 1
-  INSERT INTO ingest.origin(city_id,fhash,cityname, fname,ctype,is_valid, fmeta, config)
-   SELECT (fmeta->'ibge_id')::int, fmeta->>'hash', cityname,
+  INSERT INTO optim.origin(jurisdiction_id,fhash,cityname, fname,ctype,is_valid, fmeta, config)
+   SELECT (fmeta->'local_jurisd_id')::int, fmeta->>'hash', cityname,
           fname, ctype, is_valid,
           (fmeta - 'hash') || jsonb_build_object( 'user_resp', regexp_match(p_in_path,'^/home/([^/]+)') ),
           jsonb_build_object('staging_db',t1.datname)
@@ -255,26 +257,26 @@ CREATE or replace FUNCTION ingest.cityfolder_insert(
    WHERE is_valid
   ON CONFLICT DO NOTHING;
   -- Comandos de uso geral:
-  UPDATE ingest.origin SET cmds = array[
+  UPDATE optim.origin SET kx_cmds = array[
              concat('mkdir -p ', rtrim(p_eclusa_path,'/'), '/orig', id),
              concat('cd ', rtrim(p_eclusa_path,'/'), '/orig', id),
              CASE WHEN fmeta->>'ext'='zip' THEN concat('unzip -j ',fmeta->>'fpath','/',fname) ELSE '' END
           ]
   WHERE is_open AND is_valid
-        AND cmds IS NULL -- novos
+        AND kx_cmds IS NULL -- novos
   ;
   -- Comandos p_especifico='shp_sampa1':
-  UPDATE ingest.origin SET cmds = cmds ||  concat(
+  UPDATE optim.origin SET kx_cmds = kx_cmds ||  concat(
        -- SRID 31983 precisa estar nos metadados.
        'shp2pgsql -s 31983 ', regexp_replace(fname,'\.([^\.\/]+)$',''),'.shp tmp_orig.t',id,'_01 | psql '|| p_db
      )
   WHERE p_especifico='shp_sampa1' AND is_open AND is_valid
-        AND array_length(cmds,1)=3 -- novos
+        AND array_length(kx_cmds,1)=3 -- novos
         AND ctype='lotes'          -- só neste caso
   ;
   SELECT '... insert/tentativa realizado, comandos: '
-     ||E'\n* '|| (SELECT COUNT(*) FROM ingest.origin WHERE is_open AND is_valid) ||' origens em aberto.'
-     ||E'\n* '|| (SELECT COUNT(*) FROM ingest.origin WHERE is_open AND NOT(is_valid)) ||E' origens com defeito.\n'
+     ||E'\n* '|| (SELECT COUNT(*) FROM optim.origin WHERE is_open AND is_valid) ||' origens em aberto.'
+     ||E'\n* '|| (SELECT COUNT(*) FROM optim.origin WHERE is_open AND NOT(is_valid)) ||E' origens com defeito.\n'
 $f$ language SQL VOLATILE;
 
 
@@ -286,7 +288,7 @@ BEGIN
     'CREATE or replace VIEW  tmp_orig.'|| p_vwnane ||' AS '
     || (
       SELECT string_agg( 'SELECT '|| id ||' gid_prefix, * FROM tmp_orig.t'||id||'_01 ', E'\n  UNION \n' )
-      FROM ingest.origin WHERE is_open AND is_valid AND ctype='lotes' AND array_length(cmds,1)=4
+      FROM optim.origin WHERE is_open AND is_valid AND ctype='lotes' AND array_length(kx_cmds,1)=4
     );
     return 'VIEW tmp_orig.'|| p_vwnane || ' was created!';
 END;
@@ -314,7 +316,7 @@ BEGIN
        "(filename %L, format %L, header %L, delimiter %L)",
        p_path||'/x'||p_source_id, 'csv', 'true', ','
     );
-    -- .. FROM ingest.origin WHERE is_open AND is_valid AND ctype='lotes' AND array_length(cmds,1)=4
+    -- .. FROM optim.origin WHERE is_open AND is_valid AND ctype='lotes' AND array_length(kx_cmds,1)=4
     return 'VIEW tmp_orig.'|| fdwname || ' was created!';
 END;
 $f$ language PLpgSQL;
@@ -332,8 +334,8 @@ CREATE or replace FUNCTION ingest.cityfolder_cmds_to_run(
      false
    )::text || ' bytes em '|| p_output_shfile ||E' \n'
   FROM (
-    SELECT E'\n\n# orig'|| id ||E'\n'|| array_to_string(cmds,E'\n')
-    FROM ingest.origin WHERE is_open AND is_valid
+    SELECT E'\n\n# orig'|| id ||E'\n'|| array_to_string(kx_cmds,E'\n')
+    FROM optim.origin WHERE is_open AND is_valid
     ORDER BY id
   ) t(cmd_blk)
 $f$ language SQL immutable;

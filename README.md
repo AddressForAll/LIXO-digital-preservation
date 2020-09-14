@@ -14,7 +14,7 @@ Os dados brutos (fontes originais), por serem arquivos grandes e de baixa demand
 
 ## Repositórios de produtos
 
-Os dados de diversas fontes são comparados e estatisticamente consolidados pela infraestrutura do Instituto AddressForAll. Os resultados finais da consolidação são dados confiáveis, oferecidos ao público
+Os dados de diversas fontes são comparados estatisticamente e consolidados pela infraestrutura do Instituto AddressForAll. Os resultados finais da consolidação são dados confiáveis, oferecidos ao público
 como "versão teste" (*testing*) e "versão estável" (*stable*). São de responsabilidade apenas do Instituto,
 mas o controle de versões é mantido com a mesma divisão de jurisdições que as fontes.
 
@@ -30,11 +30,11 @@ cessionária da licença de uso aberta que acompanha os dados.
 
 Os metadados garantem a rastreabilidade tanto da fonte como da licença fornecida. São metadados de   [proveniência](https://en.wikipedia.org/wiki/Provenance#Data_provenance), conforme a estrutura ilustrada abaixo:
 
-![](assets/packModel.png)
+![](docs/assets/packModel.png)
 
 A entrega de dados brutos pode ser realizada arquivo por arquivo ou "em lote", ambas pelo *técnico responsável* devidamente autenticado. A entrega em lote é realizada por protocolo SFTP, no ambiente apelidado de Eclusa.
 
-![](assets/eclusa-ico.png)
+<img src="docs/assets/eclusa123-ico.200px.png" align="right">
 
 Todo o workflow e garantia de geração de *hash* é efetuado pela Eclusa.
 
