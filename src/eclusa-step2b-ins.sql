@@ -1,18 +1,13 @@
 -- ECLUSA STEP2 INSERTS
 
-CREATE FOREIGN TABLE tmp_orig.fdw_br_donor (
-  scope text,
-  "vatID" text,
-  "shortName" text,
-  "legalName" text,
-  "wikidataQID" text,
-  url text
-) SERVER files OPTIONS (
-   filename '/tmp/pg_io/br-donor.csv'
-   ,format 'csv'
-   ,delimiter ','
-   ,header 'true'
-);
+\echo E'\n --- Ingestão dados CSV do git ---'
+PREPARE fdw_gen(text) AS SELECT ingest.fdw_generate_inherits($1, 'br', 'optim');
+EXECUTE fdw_gen('jurisdiction');
+EXECUTE fdw_gen('donor');
+EXECUTE fdw_gen('donatedPack');
+EXECUTE fdw_gen('origin_content_type');
+EXECUTE fdw_gen('origin');
+
 INSERT INTO optim.donor (scope,vat_ID,shortName,legalName,wikidata_ID,url)
   SELECT scope, "vatID", "shortName", "legalName",
          substr("wikidataQID",2)::bigint,
