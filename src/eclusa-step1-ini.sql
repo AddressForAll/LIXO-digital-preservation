@@ -12,7 +12,7 @@
 
 CREATE extension IF NOT EXISTS postgis;
 CREATE extension IF NOT EXISTS adminpack;
-s
+
 CREATE EXTENSION IF NOT EXISTS file_fdw;
 CREATE SERVER    IF NOT EXISTS files FOREIGN DATA WRAPPER file_fdw;
 
@@ -135,7 +135,7 @@ BEGIN
  EXECUTE
     format(
       'DROP FOREIGN TABLE IF EXISTS %s; CREATE FOREIGN TABLE %s (%s)',
-       fdwname, array_to_string(pg_tablestruct_dump_totext(p_schemaname||'.'||p_tablename),',')
+       fdwname, fdwname, array_to_string(pg_tablestruct_dump_totext(p_schemaname||'.'||p_tablename),',')
      ) || format(
        'SERVER files OPTIONS (filename %L, format %L, header %L, delimiter %L)',
        f, 'csv', 'true', ','
