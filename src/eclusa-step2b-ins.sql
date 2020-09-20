@@ -1,13 +1,13 @@
 -- ECLUSA STEP2 INSERTS
 
-\echo E'\n --- Ingestão dados CSV do git ---'
-PREPARE fdw_gen(text) AS SELECT ingest.fdw_generate_inherits($1, 'br', 'optim');
-EXECUTE fdw_gen('jurisdiction');
-EXECUTE fdw_gen('donor');
-EXECUTE fdw_gen('donatedPack');
-EXECUTE fdw_gen('origin_content_type');
-EXECUTE fdw_gen('origin');
+INSERT INTO eclusa.auth_users (username) VALUES ('enio'),('igor'); -- minimal one Linux's /home/username
 
+INSERT INTO optim.donor
+  SELECT
+  FROM tmp_orig.fdw_br_donor
+  ON CONFLICT DO NOTHING
+;
+/*
 INSERT INTO optim.donor (scope,vat_ID,shortName,legalName,wikidata_ID,url)
   SELECT scope, "vatID", "shortName", "legalName",
          substr("wikidataQID",2)::bigint,
@@ -15,25 +15,7 @@ INSERT INTO optim.donor (scope,vat_ID,shortName,legalName,wikidata_ID,url)
   FROM tmp_orig.fdw_br_donor
   ON CONFLICT DO NOTHING
 ;
-
-CREATE FOREIGN TABLE tmp_orig.fdw_br_city_codes (
-  name text,
-  state text,
-  "wdId" text,
-  "idIBGE" int,
-  "lexLabel" text,
-  creation integer,
-  extinction integer,
-  "postalCode_ranges" text,
-  ddd integer,
-  abbrev3 text,
-  notes text
-) SERVER files OPTIONS (
-   filename '/tmp/pg_io/br-city-codes.csv'
-   ,format 'csv'
-   ,delimiter ','
-   ,header 'true'
-);
+*/
 
 INSERT INTO optim.jurisdiction(local_jurisd_id,name,state,abbrev3,wikidata_id,lexlabel,isolabel_ext,ddd,info)
   SELECT   "idIBGE"::int, name,

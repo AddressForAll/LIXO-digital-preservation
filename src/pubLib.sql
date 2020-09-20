@@ -1,9 +1,9 @@
 ----
 -- Public library for dl03t_main and other databases.
 
-CREATE or replace FUNCTION text_to_boolean(x text) RETURNS boolean AS $f$
+CREATE or replace FUNCTION text_to_boolean(x text, as_null boolean DEFAULT NULL) RETURNS boolean AS $f$
   SELECT CASE
-    WHEN x IS NULL OR x=''  THEN NULL
+    WHEN x IS NULL OR x=''  THEN as_null -- NULL or false
     WHEN x='0' OR x='false' THEN false
     ELSE true
   END
@@ -27,3 +27,21 @@ $f$ LANGUAGE SQL IMMUTABLE;
 CREATE or replace FUNCTION lexname_to_unix(p_lexname text) RETURNS text AS $$
   SELECT string_agg(initcap(p),'') FROM regexp_split_to_table($1,'\.') t(p)
 $$ LANGUAGE SQL IMMUTABLE;
+
+
+CREATE or replace FUNCTION pg_tablestruct_dump_totext(p_tabname text) RETURNS text[]  AS $f$
+  SELECT array_agg(col||' '||datatype)
+  FROM (
+    SELECT -- attrelid::regclass AS tbl,
+           attname            AS col
+         , atttypid::regtype  AS datatype
+    FROM   pg_attribute
+    WHERE  attrelid = p_tabname::regclass  -- table name, optionally schema-qualified
+    AND    attnum > 0
+    AND    NOT attisdropped
+    ORDER  BY attnum
+  ) t
+$f$ language SQL IMMUTABLE;
+COMMENT ON FUNCTION pg_tablestruct_dump_totext
+  IS 'Extraxcts column descriptors of a table. Used in ingest.fdw_generate_getclone() function.'
+;

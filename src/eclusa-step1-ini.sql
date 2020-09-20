@@ -115,21 +115,6 @@ CREATE TABLE IF NOT EXISTS optim.origin(
    ,UNIQUE(jurisd_osm_id,fname,fversion,ctype) -- ,kx_ingest_date=ingest_instant::date
 );
 
-CREATE or replace FUNCTION ingest.pg_attribute_dump_text(p_tabname text) RETURNS text[]  AS $f$
-  SELECT array_agg(col||' '||datatype)
-  FROM (
-    SELECT -- attrelid::regclass AS tbl,
-           attname            AS col
-         , atttypid::regtype  AS datatype
-    FROM   pg_attribute
-    WHERE  attrelid = p_tabname::regclass  -- table name, optionally schema-qualified
-    AND    attnum > 0
-    AND    NOT attisdropped
-    ORDER  BY attnum
-  ) t
-$f$ language SQL IMMUTABLE;
-
-
 -- -- --
 CREATE or replace FUNCTION ingest.fdw_generate_getclone(
   -- foreign-data wrapper generator
@@ -150,7 +135,7 @@ BEGIN
  EXECUTE
     format(
       'DROP FOREIGN TABLE IF EXISTS %s; CREATE FOREIGN TABLE %s (%s)',
-       fdwname, array_to_string(ingest.pg_attribute_dump_text(p_schemaname||'.'||p_tablename),',')
+       fdwname, array_to_string(pg_tablestruct_dump_totext(p_schemaname||'.'||p_tablename),',')
      ) || format(
        'SERVER files OPTIONS (filename %L, format %L, header %L, delimiter %L)',
        f, 'csv', 'true', ','
@@ -158,6 +143,10 @@ BEGIN
     return ' '|| fdwname || E' was created!\n source: '||f|| ' ';
 END;
 $f$ language PLpgSQL;
+COMMENT ON FUNCTION ingest.fdw_generate_getclone
+  IS 'Generates a same-structure FOREIGN TABLE for ingestion.'
+;
+
 
 -- -- -- -- -- -- -- -- --
 -- inicializações INGEST:
@@ -180,12 +169,16 @@ CREATE VIEW ingest.vw01_origin AS
 
 CREATE SCHEMA IF NOT EXISTS eclusa; -- módulo complementar do Schema ingest.
 
+CREATE TABLE eclusa.auth_users (
+  username text NOT NULL PRIMARY KEY,
+  info jsonb
+);
+
+
 CREATE or replace FUNCTION eclusa.cityfolder_input_files(
   p_fpath text DEFAULT '/home/igor',
   p_excludefiles text[] DEFAULT array['sha256sum.txt','README.md']
-) RETURNS TABLE (
-  fid int, cityname text, fname text, ctype text, is_valid boolean, fmeta jsonb
-) AS $f$
+) RETURNS TABLE (LIKE api.ttpl_eclusa01_cityfile1) AS $f$
 
   WITH t0 AS ( SELECT rtrim(p_fpath,'/') AS fpath )
   , t1 AS (
@@ -206,10 +199,10 @@ CREATE or replace FUNCTION eclusa.cityfolder_input_files(
     ) t2
   ), tres2 AS ( -- main query:
 
-  SELECT (row_number() OVER ())::int id,
-          cityname , fname, ctype,
-          fname ~* '\.(zip|gz|rar|geojson|csv|dwg|pdf)$' AS is_validext,
-          fmeta || jsonb_build_object( 'ext', (regexp_match(fname,'\.([^/\.]+)$'))[1]  ) AS fmeta
+  SELECT cityname, ctype, (row_number() OVER ())::int id,
+         fname,
+         fname ~* '\.(zip|gz|rar|geojson|csv|dwg|pdf)$' AS is_validext,
+         fmeta || jsonb_build_object( 'ext', (regexp_match(fname,'\.([^/\.]+)$'))[1]  ) AS fmeta
   FROM ( -- t3:
 
     SELECT * FROM tres WHERE not((fmeta->'isdir')::boolean)
@@ -229,8 +222,11 @@ CREATE or replace FUNCTION eclusa.cityfolder_input_files(
   ) t3
   WHERE NOT( fname=ANY(p_excludefiles) )
   ) -- \tres2
-  SELECT id, cityname, fname, ctype, is_validext,
-         fmeta || CASE WHEN is_validext THEN '{}'::jsonb ELSE jsonb_build_object('is_valid_err','#ER01: file extension unknown; ') END
+  SELECT cityname, ctype, id, fname, is_validext,
+         fmeta || CASE
+          WHEN is_validext THEN '{}'::jsonb
+          ELSE jsonb_build_object('is_valid_err','#ER01: file extension unknown; ')
+          END AS fmeta
   FROM tres2
 $f$ language SQL immutable;
 
@@ -251,16 +247,18 @@ CREATE or replace FUNCTION eclusa.read_hashsum(
   WHERE x is not null AND x[1]>''
 $f$ language SQL immutable;
 
+
+---
 CREATE or replace FUNCTION eclusa.cityfolder_input( -- joined
-  p_fpath text DEFAULT '/tmp/pg_io/',
+  p_fpath text DEFAULT '/tmp/pg_io/', -- or /home/igor/
   checksum_file text DEFAULT 'sha256sum.txt'
-) RETURNS TABLE (fid int, cityname text, fname text, ctype text, is_valid boolean, fmeta jsonb) AS $f$
+) RETURNS TABLE (LIKE api.ttpl_eclusa01_cityfile1) AS $f$
    WITH t AS (
       SELECT cf.*, y.jurisd_local_id, fmeta->>'fpath' AS fpath
-      FROM eclusa.cityfolder_input_files(p_fpath) cf
+      FROM eclusa.cityfolder_input_files(p_fpath) cf --  cityname,ctype,fid,fname, is_valid, fmeta
            LEFT JOIN optim.jurisdiction y ON cf.cityname=y.isolabel_ext
    )
-   SELECT t.fid, t.cityname, t.fname, t.ctype,
+   SELECT t.cityname, t.ctype, t.fid, t.fname,
           t.is_valid AND k2.hash is not null AS is_valid,
           CASE WHEN t.jurisd_local_id IS NULL THEN t.fmeta    || jsonb_build_object('is_valid_err', '#ER02: cityname unknown')
                WHEN k2.hash is not null THEN  t.fmeta || jsonb_build_object('jurisd_local_id',t.jurisd_local_id, 'hash',k2.hash, 'hashtype', k2.hashtype)
@@ -382,30 +380,64 @@ CREATE or replace FUNCTION ingest.cityfolder_cmds_to_run(
   ) t(cmd_blk)
 $f$ language SQL immutable;
 
------ GERADORES DE Comando
+----- Shell-script generators:
+
+CREATE or replace FUNCTION eclusa.cityfolder_validUsers(
+  p_path text DEFAULT '/home'
+) RETURNS TABLE (LIKE api.ttpl_general01_namecheck) AS $f$
+  WITH t AS (
+    SELECT t.dirname, a.users, t.dirname=ANY(a.users) AS is_valid,
+           rtrim(p_path,'/')||'/'||t.dirname as upath
+    FROM pg_ls_dir(p_path) t(dirname),
+         (SELECT array_agg(username) users FROM eclusa.auth_users) a
+  )
+   SELECT true,  dirname, '' FROM t WHERE is_valid
+   UNION
+   SELECT false, dirname, 'no auth_user for filesys_user '||upath FROM t WHERE NOT(is_valid)
+   UNION
+   ( SELECT false, u.username, 'no filesys_user for auth_user '||u.username
+     FROM eclusa.auth_users u, (SELECT array_agg(dirname) dnames FROM t) d
+     WHERE NOT(username=ANY(dnames))
+   )
+   ORDER BY 1 DESC,2
+$f$ language SQL immutable;
+
+CREATE VIEW eclusa.vw01_cityfolder_validUsers AS
+  SELECT name as username FROM eclusa.cityfolder_validUsers() WHERE is_valid
+; -- list all default valid users
 
 CREATE or replace FUNCTION eclusa.cityfolder_runhashes(
-  p_path text, -- ex. /home/igor
-  p_output_shfile text DEFAULT '/tmp/pg_io/runHashes.sh'
+  p_user text, -- ex. igor
+  p_output_shfile text DEFAULT '/tmp/pg_io/runHashes',
+  p_path text DEFAULT '/home'
 ) RETURNS text AS $f$
-  SELECT pg_catalog.pg_file_unlink(p_output_shfile);
-  SELECT E'\nGravados '|| pg_catalog.pg_file_write(
-    p_output_shfile,
+  WITH
+  t0 AS (SELECT p_output_shfile ||'-'|| p_user ||'.sh' AS sh_file),
+  t1 AS (SELECT pg_catalog.pg_file_unlink(sh_file) FROM t0)
+   SELECT E'\nGravados '|| pg_catalog.pg_file_write(
+    (SELECT sh_file FROM t0),
     string_agg( cmd, E'\n' ),
     false
-  )::text ||' bytes em '|| p_output_shfile ||E' \n' as fim
-  FROM (
+   )::text ||' bytes em '|| (SELECT sh_file FROM t0) ||E' \n' as fim
+   FROM (
     SELECT distinct concat(
         'cd ', fmeta->>'fpath', '; sha256sum -b *.* > sha256sum.txt; chmod 666 sha256sum.txt'
       ) as cmd
-    FROM eclusa.cityfolder_input_files(p_path)
+    FROM eclusa.cityfolder_input_files(p_path||'/'||p_user)
     ORDER BY 1
-  ) t
+   ) t
 $f$ language SQL immutable;
 
+CREATE VIEW eclusa.vw01alldft_cityfolder_runhashes AS
+  SELECT string_agg(eclusa.cityfolder_runhashes(username),E'\n')
+  FROM eclusa.vw01_cityfolder_validUsers
+; -- execute all as default.
+
 CREATE or replace FUNCTION eclusa.cityfolder_run_cpfiles(
-  p_user text, -- ex. igor
-  p_output_shfile text DEFAULT '/tmp/pg_io/runCpFiles.sh'
+  p_user          text, -- ex. igor
+  p_output_shfile text DEFAULT '/tmp/pg_io/runCpFiles',
+  p_path          text DEFAULT '/home',
+  p_target_path   text DEFAULT '/var/www/preserv.addressforall.org/download/'
 ) RETURNS text AS $f$
   SELECT pg_catalog.pg_file_unlink(p_output_shfile);
   SELECT E'\nGravados '|| pg_catalog.pg_file_write(
@@ -416,40 +448,74 @@ CREATE or replace FUNCTION eclusa.cityfolder_run_cpfiles(
   FROM (
     SELECT concat(
       'cp "', fmeta->>'fpath', '/', fname, '" ',
-      '/var/www/preserv.addressforall.org/download/', fmeta->>'hash','.', fmeta->>'ext'
+      p_target_path, fmeta->>'hash','.', fmeta->>'ext'
     )
-    FROM eclusa.cityfolder_input('/home/'||p_user) where is_valid
+    FROM eclusa.cityfolder_input(p_path||'/'||p_user) where is_valid
 ) t(cmd)
 $f$ language SQL immutable;
 
------ expondo na API!
+CREATE VIEW eclusa.vw01alldft_cityfolder_run_cpfiles AS
+  SELECT string_agg(eclusa.cityfolder_runhashes(username),E'\n')
+  FROM eclusa.vw01_cityfolder_validUsers
+; -- execute all as default.
 
-CREATE or replace FUNCTION API.cityfolder_input_files_user(
-    p_user text DEFAULT 'igor',
-    p_is_valid text DEFAULT NULL
-  ) RETURNS TABLE (cityname text, ctype text, fid int, is_valid boolean, fname text, err_msg text) AS $wrap$
-  SELECT cityname,ctype,fid,is_valid,fname, (fmeta->>'is_valid_err') AS err_msg
-  FROM eclusa.cityfolder_input_files('/home/'||p_user)
-  WHERE COALESCE( is_valid=text_to_boolean(p_is_valid), true)
-  ORDER BY 1,2
-$wrap$ language SQL immutable;
--- ver API.AddressForAll/eclusa/checkUserFiles-step1/{user}
+-- -- -- --
+-- API exposing of filesystem or shell-script results
 
+-- CREATE or replace FUNCTION eclusa.cityfolder_input_files_user(
+-- p_user text DEFAULT 'igor',
+-- p_is_valid text DEFAULT NULL
+-- RETURNS TABLE (LIKE api.ttpl_eclusa01_cityfile1) AS $f$
+--  IS 'Lists all user-eclusa valid files in Step1. See endpoint /eclusa/checkUserFiles-step1/{user}.'
+/*
+lixo ver API.uri_dispatch_tab_eclusa1
 CREATE or replace FUNCTION API.cityfolder_input_user(
     p_user text DEFAULT 'igor',
     p_is_valid text DEFAULT NULL
-  ) RETURNS TABLE (cityname text, ctype text, fid int, is_valid boolean, fname text, hash text, err_msg text) AS $wrap$
-  SELECT cityname,ctype,fid,is_valid,fname,(fmeta->>'hash') as hash, (fmeta->>'is_valid_err') AS err_msg
+  ) RETURNS TABLE (LIKE api.ttpl_eclusa01_cityfile1) AS $f$
+  SELECT cityname,ctype,fid,is_valid,fname,fmeta
+         -- see fmeta->>'hash' and  fmeta->>'is_valid_err'
   FROM eclusa.cityfolder_input('/home/'||p_user)
   WHERE COALESCE( is_valid=text_to_boolean(p_is_valid), true)
   ORDER BY 1,2
-$wrap$ language SQL immutable;
--- ver API.AddressForAll/eclusa/checkUserFiles-step2/{user}
+$f$ language SQL immutable;
+COMMENT ON FUNCTION api.cityfolder_input_files_user
+  IS 'Lists all user-eclusa valid files in Step2. See endpoint /eclusa/checkUserFiles-step2/{user}.'
+;
+*/
 
--- certo é criar função que retorna JSON das tabelas acima e processa strings nos parametros
--- API.eclusa_checkUserFiles_step(step,user,flag)
 
-----
+-- -- -- -- -- -- -- --
+-- API Eclusa dispatchers:
+
+CREATE or replace FUNCTION API.uridisp_eclusa_checkuserfiles_step1(
+    p_uri text DEFAULT '', -- /eclusa/checkUserFiles-step1/{user}/{is_valid?}
+    p_args text DEFAULT NULL
+) RETURNS TABLE (LIKE api.ttpl_eclusa01_cityfile1) AS $f$
+        SELECT cityname, ctype, fid, fname, is_valid, fmeta
+        FROM API.uri_dispatch_parser(p_uri,'{eclusa,checkuserfiles-step1}') t1(p),
+             LATERAL eclusa.cityfolder_input_files('/home/'||t1.p[1]) t2
+        WHERE  COALESCE( t2.is_valid=text_to_boolean(t1.p[2]), true)
+        ORDER BY 1,2
+$f$ language SQL immutable;
+COMMENT ON FUNCTION API.uridisp_eclusa_checkuserfiles_step1
+  IS 'A uri_dispatcher that runs eclusa.cityfolder_input_files() returning ttpl_eclusa01_cityfile1.'
+;
+
+CREATE or replace FUNCTION API.uridisp_eclusa_checkuserfiles_step2(
+    p_uri text DEFAULT '', -- /eclusa/checkUserFiles-step1/{user}/{is_valid?}
+    p_args text DEFAULT NULL
+) RETURNS TABLE (LIKE api.ttpl_eclusa01_cityfile1) AS $f$
+        SELECT cityname, ctype, fid, fname, is_valid, fmeta
+        FROM API.uri_dispatch_parser(p_uri) t1(p), -- or '{eclusa,checkuserfiles-step2}'
+             LATERAL eclusa.cityfolder_input('/home/'||t1.p[1]) t2
+        WHERE  COALESCE( t2.is_valid=text_to_boolean(t1.p[2]), true)
+        ORDER BY 1,2
+$f$ language SQL immutable;
+COMMENT ON FUNCTION API.uridisp_eclusa_checkuserfiles_step2
+  IS 'A uri_dispatcher that runs eclusa.cityfolder_input() returning ttpl_eclusa01_cityfile1.'
+;
+
 ----
 
 \echo E'\n --- FDW para ingestão de dados do git ---'
