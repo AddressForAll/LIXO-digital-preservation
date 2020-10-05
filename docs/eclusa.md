@@ -1,6 +1,6 @@
 # ECLUSA DE DADOS
 
-<img src="assets/eclusa123-ico.png" align="right">
+<img src="assets/eclusa123-ico.200x.png" align="right">
 
 A entrega de dados brutos pode ser realizada arquivo por arquivo na API ou "em lote", ambas pelo *técnico responsável* devidamente autenticado. A "entrega em lote" é realizada por protocolo SFTP, no ambiente apelidado de Eclusa, garantindo-se o seguinte workflow:
 
