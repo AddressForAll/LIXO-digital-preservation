@@ -13,7 +13,7 @@ ini_sql:
 	mkdir -p /tmp/pg_io
 	psql dl03t_main < pubLib.sql
 	psql dl03t_main < eclusa-step1-ini.sql
-	sh eclusa-step2a-ins.sh
+	# sh eclusa-step2a-ins.sh
 	psql dl03t_main < eclusa-step2b-ins.sql
 	touch /opt/lock-mkStatus/digitalPreservation-makeSQL.~feito
 
@@ -33,3 +33,14 @@ ini_ins:
 	psql dl03t_main -c "SELECT optim.fdw_wgets_script()"
 	sh /tmp/pg_io/run_wgets.sh
   # falta rodar resto
+
+
+## testing ... correct is to wget
+ins_step1: # LIXO
+        mkdir -p /tmp/pg_io/digital-preservartion-XX
+        rm -f /tmp/pg_io/digital-preservartion-XX/*.csv
+        for gitdir in /opt/gits/digital-preservartion-*; do \
+            echo "Refreshing $$gitdir and copying its CSVs..."; \
+            git -C "$$gitdir" pull; \
+            cp "$$gitdir/data/"*.csv /tmp/pg_io/digital-preservartion-XX; \
+        done

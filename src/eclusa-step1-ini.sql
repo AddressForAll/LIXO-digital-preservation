@@ -63,7 +63,7 @@ $f$ language SQL immutable;
 
 CREATE or replace FUNCTION eclusa.cityfolder_input_files(
   p_user text, --  e.g. 'igor',
-  p_excludefiles text[] DEFAULT array['sha256sum.txt','README.md']
+  p_excludefiles text[] DEFAULT array['sha256sum.txt','README.md','README.txt']
 ) RETURNS TABLE (LIKE api.ttpl_eclusa02_cityfile1) AS $f$
   -- falta conferir se user é válido e se pack foi registrado.
   WITH
@@ -85,7 +85,7 @@ CREATE or replace FUNCTION eclusa.cityfolder_input_files(
   tres2 AS ( -- main query:
     SELECT pack_id, ctype, (row_number() OVER ())::int id,
            fname,
-           fname ~* '\.(zip|gz|rar|geojson|json|csv|dwg|pdf)$' AS is_validext,
+           fname ~* '\.(zip|gz|rar|geojson|json|csv|dwg|pdf|pbf)$' AS is_validext,
            fmeta || jsonb_build_object( 'ext', (regexp_match(fname,'\.([^/\.]+)$'))[1]  ) AS fmeta
     FROM ( -- t3:
       SELECT pack_id, ctype, fname, fmeta FROM tres_pack WHERE NOT((fmeta->'isdir')::boolean)
@@ -159,7 +159,7 @@ $f$ language SQL immutable;
 -- Carga da origem e geração de comandos para a ingestão final:
 
 CREATE or replace FUNCTION ingest.cityfolder_insert(
-  p_in_path     text DEFAULT '/tmp/pg_io/CITY',
+  p_user     text, -- e.g. 'igor'
   p_eclusa_path text DEFAULT '/tmp/pg_io/eclusa',
   p_db          text DEFAULT 'ingest1', -- ou tmplixo
   p_especifico  text DEFAULT ''
@@ -170,15 +170,14 @@ CREATE or replace FUNCTION ingest.cityfolder_insert(
 
   INSERT INTO optim.origin(jurisd_osm_id,pack_id,fhash, fname,ctype,is_valid, is_open, fmeta, config)
    -- ignores fversion,kx_cmds
-   SELECT j.osm_id, e.pack_id, e.fmeta->>'hash',
-          e.fname, e.ctype, e.is_valid,
-          (e.fmeta - 'hash') || jsonb_build_object( 'user_resp', regexp_match(p_in_path,'^/home/([^/]+)') ),
-          false, jsonb_build_object('staging_db',t1.datname)  -- teste
-   FROM eclusa.cityfolder_input( rtrim(p_in_path,'/') ) e
+   SELECT (e.fmeta->'jurisdiction_osmid')::bigint, e.pack_id, e.fmeta->>'hash',
+          e.fname, e.ctype, e.is_valid, true,
+          (e.fmeta - 'hash' - 'jurisdiction_osmid'),
+          jsonb_build_object('staging_db',t1.datname)  -- teste
+   FROM eclusa.cityfolder_input(p_user) e,
        --pack_id |       ctype        | fid |fname| is_valid |fmeta
        --{"ext": "zip", "hash": "dbd818483bf963f468d78e39340ecead1edf60dc61333fea044f640a337eef17",
        --"size": 25319925, "fpath": "/home/igor/BR-SP-Itu/_pk010/edificacoes", "isdir": false, "access": "2020-09-21T07:20:27+00:00", "change": "2020-09-10T09:17:31+00:00", "pack_id": 10, "creation": null, "hashtype": "sha256sum-bin", "username": "igor", "modification": "2020-09-10T09:17:31+00:00", "jurisdiction_label": "BR-SP-Itu", "jurisdiction_osmid": 298216}
-       INNER JOIN optim.jurisdiction j ON j.isolabel_ext=e.cityname,
         (SELECT COALESCE( (SELECT datname FROM pg_stat_activity ORDER BY 1 LIMIT 1), NULL) ) t1(datname)
    WHERE is_valid
   ON CONFLICT DO NOTHING;
@@ -188,8 +187,7 @@ CREATE or replace FUNCTION ingest.cityfolder_insert(
              concat('cd ', rtrim(p_eclusa_path,'/'), '/orig', id),
              CASE WHEN fmeta->>'ext'='zip' THEN concat('unzip -j ',fmeta->>'fpath','/',fname) ELSE '' END
           ]
-  WHERE is_open AND is_valid
-        AND kx_cmds IS NULL -- novos
+  WHERE is_open AND is_valid AND kx_cmds IS NULL -- novos
   ;
   -- Comandos p_especifico='shp_sampa1':
   UPDATE optim.origin SET kx_cmds = kx_cmds ||  concat(
@@ -276,14 +274,14 @@ CREATE or replace FUNCTION eclusa.cityfolder_validUsers(
     SELECT t.dirname, a.users, t.dirname=ANY(a.users) AS is_valid,
            rtrim(p_path,'/')||'/'||t.dirname as upath
     FROM pg_ls_dir(p_path) t(dirname),
-         (SELECT array_agg(username) users FROM optim.auth_users) a
+         (SELECT array_agg(username) users FROM optim.auth_user) a
   )
    SELECT true,  dirname, '' FROM t WHERE is_valid
    UNION
    SELECT false, dirname, 'no auth_user for filesys_user '||upath FROM t WHERE NOT(is_valid)
    UNION
    ( SELECT false, u.username, 'no filesys_user for auth_user '||u.username
-     FROM optim.auth_users u, (SELECT array_agg(dirname) dnames FROM t) d
+     FROM optim.auth_user u, (SELECT array_agg(dirname) dnames FROM t) d
      WHERE NOT(username=ANY(dnames))
    )
    ORDER BY 1 DESC,2
@@ -345,7 +343,7 @@ CREATE or replace FUNCTION eclusa.cityfolder_run_cpfiles(
          'cp "', fmeta->>'fpath', '/', fname, '" ',
          p_target_path, fmeta->>'hash','.', fmeta->>'ext'
        ) AS cmd
-     FROM eclusa.cityfolder_input(p_path||'/'||p_user)
+     FROM eclusa.cityfolder_input(p_user)
      WHERE is_valid
      ORDER BY 1
    ) t
@@ -384,6 +382,8 @@ COMMENT ON FUNCTION api.cityfolder_input_files_user
 
 -- -- -- -- -- -- -- --
 -- API Eclusa dispatchers:
+
+-- !FALTA REVISAR A PARTIR DAQUI, mudou jurisdiction e cia.
 
 CREATE or replace FUNCTION API.uridisp_eclusa_checkuserfiles_step1(
     p_uri text DEFAULT '', -- /eclusa/checkUserFiles-step1/{user}/{is_valid?}
