@@ -344,7 +344,9 @@ CREATE or replace FUNCTION eclusa.cityfolder_run_cpfiles(
          p_target_path, fmeta->>'hash','.', fmeta->>'ext'
        ) AS cmd
      FROM eclusa.cityfolder_input(p_user)
-     WHERE is_valid
+     WHERE is_valid AND fmeta->>'hash' NOT IN ( -- exclude when exists
+       SELECT fhash FROM optim.origin
+     ) -- FALTA conferir se foi mesmo copiado nos backups de hashes.
      ORDER BY 1
    ) t
 $f$ language SQL immutable;

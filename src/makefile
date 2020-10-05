@@ -31,7 +31,7 @@ ini_ins:
 	@echo "run SQL spcripts"
 	mkdir -p /tmp/pg_io
 	psql dl03t_main -c "SELECT optim.fdw_wgets_script()"
-	sh /tmp/pg_io/run_wgets.sh
+	sh /tmp/pg_io/run_wgets-all.sh
   # falta rodar resto
 
 
