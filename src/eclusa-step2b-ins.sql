@@ -1,2 +1,0 @@
--- ECLUSA STEP2 INSERTS
--- conferir antes WS. função optim.fdw_wgets_script() e atualização do donatedPack!
