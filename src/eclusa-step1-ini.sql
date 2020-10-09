@@ -85,7 +85,7 @@ CREATE or replace FUNCTION eclusa.cityfolder_input_files(
   tres2 AS ( -- main query:
     SELECT pack_id, ctype, (row_number() OVER ())::int id,
            fname,
-           fname ~* '\.(zip|gz|rar|geojson|json|csv|dwg|pdf|pbf)$' AS is_validext,
+           fname ~* '\.(zip|gz|rar|geojson|json|csv|dwg|pdf|pbf|kmz)$' AS is_validext,
            fmeta || jsonb_build_object( 'ext', (regexp_match(fname,'\.([^/\.]+)$'))[1]  ) AS fmeta
     FROM ( -- t3:
       SELECT pack_id, ctype, fname, fmeta FROM tres_pack WHERE NOT((fmeta->'isdir')::boolean)
