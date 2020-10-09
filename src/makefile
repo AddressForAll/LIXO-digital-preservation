@@ -20,6 +20,9 @@ ini_sql:
 ## ECLUSA, commands to execute by root at crontab:
 
 ecl_run: /opt/lock-mkStatus/digitalPreservation-makeSQL.~feito
+	psql dl03t_main -c "SELECT optim.fdw_wgets_script('refresh')"
+	sh /tmp/pg_io/run_wgets-refresh.sh
+	psql dl03t_main -c "SELECT optim.fdw_wgets_refresh(false)" # true on master
 	sh eclusa-mkCpHashFiles.sh
 	# depois parte do ini_ins para donor e donatedpack.
 	# depois ingest.cityfolder_insert dos usuários
