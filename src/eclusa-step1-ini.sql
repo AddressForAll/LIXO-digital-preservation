@@ -10,23 +10,6 @@
 -- Efetua o scan, validação, geração de comandos e ingestão de dados já padronizados.
 --
 
-
--- -- -- -- -- -- -- -- --
--- inicializações INGEST:
-
-CREATE VIEW ingest.vw01_origin AS
-  SELECT o.*,
-         c.name as city_name,          c.parent_abbrev as city_state,
-         c.abbrev AS city_abbrev3,    c.isolabel_ext AS city_isolabel_ext,
-         d.vat_id AS donor_vat_id,     d.shortname AS donor_shortname,
-         d.legalName AS donor_legalName, d.url AS donor_url,
-         p.accepted_date,              p.config_commom
-  FROM (optim.origin o
-       INNER JOIN optim.jurisdiction c ON o.jurisd_osm_id=c.osm_id
-       LEFT JOIN optim.donatedPack p ON o.pack_id=p.pack_id
-     ) LEFT JOIN optim.donor d ON p.donor_id = d.id
-;
-
 -- -- -- -- -- -- -- -- --
 -- inicializações ECLUSA:
 
@@ -158,16 +141,14 @@ $f$ language SQL immutable;
 -- -- -- -- --
 -- Carga da origem e geração de comandos para a ingestão final:
 
-CREATE or replace FUNCTION ingest.cityfolder_insert(
+CREATE or replace FUNCTION eclusa.cityfolder_insert(
   p_user     text, -- e.g. 'igor'
   p_eclusa_path text DEFAULT '/tmp/pg_io/eclusa',
-  p_db          text DEFAULT 'ingest1', -- ou tmplixo
+  p_db_ingest   text DEFAULT 'ingest1', -- ou tmplixo
   p_especifico  text DEFAULT ''
 ) RETURNS text AS $f$
   -- idempotente no estado da base: chamamos a função n vezes com os mesmos parâmetros e o resultado é sempre o mesmo.
-
-  -- primeiro rodar make com eclusa.vw01alldft_cityfolder_runhashes e eclusa.vw01alldft_cityfolder_run_cpfiles
-
+  -- primeiro rodar make ecl_run
   INSERT INTO optim.origin(jurisd_osm_id,pack_id,fhash, fname,ctype,is_valid, is_open, fmeta, config)
    -- ignores fversion,kx_cmds
    SELECT (e.fmeta->'jurisdiction_osmid')::bigint, e.pack_id, e.fmeta->>'hash',
@@ -175,9 +156,6 @@ CREATE or replace FUNCTION ingest.cityfolder_insert(
           (e.fmeta - 'hash' - 'jurisdiction_osmid'),
           jsonb_build_object('staging_db',t1.datname)  -- teste
    FROM eclusa.cityfolder_input(p_user) e,
-       --pack_id |       ctype        | fid |fname| is_valid |fmeta
-       --{"ext": "zip", "hash": "dbd818483bf963f468d78e39340ecead1edf60dc61333fea044f640a337eef17",
-       --"size": 25319925, "fpath": "/home/igor/BR-SP-Itu/_pk010/edificacoes", "isdir": false, "access": "2020-09-21T07:20:27+00:00", "change": "2020-09-10T09:17:31+00:00", "pack_id": 10, "creation": null, "hashtype": "sha256sum-bin", "username": "igor", "modification": "2020-09-10T09:17:31+00:00", "jurisdiction_label": "BR-SP-Itu", "jurisdiction_osmid": 298216}
         (SELECT COALESCE( (SELECT datname FROM pg_stat_activity ORDER BY 1 LIMIT 1), NULL) ) t1(datname)
    WHERE is_valid
   ON CONFLICT DO NOTHING;
@@ -192,7 +170,7 @@ CREATE or replace FUNCTION ingest.cityfolder_insert(
   -- Comandos p_especifico='shp_sampa1':
   UPDATE optim.origin SET kx_cmds = kx_cmds ||  concat(
        -- SRID 31983 precisa estar nos metadados.
-       'shp2pgsql -s 31983 ', regexp_replace(fname,'\.([^\.\/]+)$',''),'.shp tmp_orig.t',id,'_01 | psql '|| p_db
+       'shp2pgsql -s 31983 ', regexp_replace(fname,'\.([^\.\/]+)$',''),'.shp tmp_orig.t',id,'_01 | psql '|| p_db_ingest
      )
   WHERE p_especifico='shp_sampa1' AND is_open AND is_valid
         AND array_length(kx_cmds,1)=3 -- novos
@@ -203,6 +181,10 @@ CREATE or replace FUNCTION ingest.cityfolder_insert(
      ||E'\n* '|| (SELECT COUNT(*) FROM optim.origin WHERE is_open AND NOT(is_valid)) ||E' origens com defeito.\n'
 $f$ language SQL VOLATILE;
 
+CREATE VIEW eclusa.vw03alldft_cityfolder_ins AS
+  SELECT string_agg(eclusa.cityfolder_insert(username),E'\n')
+  FROM eclusa.vw01_cityfolder_validUsers
+;
 
 CREATE or replace FUNCTION ingest.cityfolder_generate_views_tpl1(
   p_vwnane text DEFAULT 'vw0_union1'
@@ -245,9 +227,9 @@ BEGIN
 END;
 $f$ language PLpgSQL;
 
-
--- mudar para esquema eclusa?
 CREATE or replace FUNCTION ingest.cityfolder_cmds_to_run(
+  -- REVISAR! em uso?
+  -- mudar para esquema eclusa?
   p_staging_db text DEFAULT 'ingest1',
   p_output_shfile text DEFAULT '/tmp/pg_io/run.sh'
 ) RETURNS text AS $f$
@@ -351,7 +333,7 @@ CREATE or replace FUNCTION eclusa.cityfolder_run_cpfiles(
    ) t
 $f$ language SQL immutable;
 
-CREATE or replace VIEW eclusa.vw01alldft_cityfolder_run_cpfiles AS
+CREATE or replace VIEW eclusa.vw01alldft_cityfolder_run_cpfiles AS   -- mudar vw02all!
   SELECT string_agg(eclusa.cityfolder_run_cpfiles(username),E'\n')
   FROM eclusa.vw01_cityfolder_validUsers
 ; -- execute all as default.
@@ -385,14 +367,13 @@ COMMENT ON FUNCTION api.cityfolder_input_files_user
 -- -- -- -- -- -- -- --
 -- API Eclusa dispatchers:
 
--- !FALTA REVISAR A PARTIR DAQUI, mudou jurisdiction e cia.
-
+-- http://api-test.addressforall.org/v1/eclusa/checkuserfiles_step1/igor
 CREATE or replace FUNCTION API.uridisp_eclusa_checkuserfiles_step1(
     p_uri text DEFAULT '', -- /eclusa/checkUserFiles-step1/{user}/{is_valid?}
     p_args text DEFAULT NULL
 ) RETURNS TABLE (LIKE api.ttpl_eclusa02_cityfile1) AS $f$
-        SELECT cityname, ctype, fid, fname, is_valid, fmeta
-        FROM API.uri_dispatch_parser(p_uri,'{eclusa,checkuserfiles-step1}') t1(p),
+        SELECT pack_id, ctype, fid, fname, is_valid, fmeta
+        FROM API.uri_dispatch_parser(p_uri) t1(p), -- rev ,'{eclusa,checkuserfiles_step1}'
              LATERAL eclusa.cityfolder_input_files(t1.p[1]) t2 -- nao mais '/home/'||
         WHERE  COALESCE( t2.is_valid=text_to_boolean(t1.p[2]), true)
         ORDER BY 1,2
@@ -402,11 +383,11 @@ COMMENT ON FUNCTION API.uridisp_eclusa_checkuserfiles_step1
 ;
 
 CREATE or replace FUNCTION API.uridisp_eclusa_checkuserfiles_step2(
-    p_uri text DEFAULT '', -- /eclusa/checkUserFiles-step1/{user}/{is_valid?}
+    p_uri text DEFAULT '', -- /eclusa/checkuserFiles_step2/{user}/{is_valid?}
     p_args text DEFAULT NULL
 ) RETURNS TABLE (LIKE api.ttpl_eclusa02_cityfile1) AS $f$
-        SELECT cityname, ctype, fid, fname, is_valid, fmeta
-        FROM API.uri_dispatch_parser(p_uri) t1(p), -- or '{eclusa,checkuserfiles-step2}'
+        SELECT pack_id, ctype, fid, fname, is_valid, fmeta
+        FROM API.uri_dispatch_parser(p_uri) t1(p), -- rev ,'{eclusa,checkuserfiles_step2}'
              LATERAL eclusa.cityfolder_input('/home/'||t1.p[1]) t2
         WHERE  COALESCE( t2.is_valid=text_to_boolean(t1.p[2]), true)
         ORDER BY 1,2
