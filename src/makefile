@@ -20,6 +20,9 @@ ini_sql:
 ## ECLUSA, commands to execute by root at crontab:
 
 ecl_run: /opt/lock-mkStatus/digitalPreservation-makeSQL.~feito
+	whoami
+	@echo "Run with sudo! (idempotent)"
+	# make -C /opt/gits/WS/src ini_tmprefresh
 	psql dl03t_main -c "SELECT optim.fdw_wgets_script('refresh')"
 	sh /tmp/pg_io/run_wgets-refresh.sh
 	psql dl03t_main -c "SELECT optim.fdw_wgets_refresh(false)" # (donor e donatedpack) true on master
@@ -43,10 +46,10 @@ ini_ins:
 
 ## testing ... correct is to wget
 ins_step1: # LIXO
-        mkdir -p /tmp/pg_io/digital-preservartion-XX
-        rm -f /tmp/pg_io/digital-preservartion-XX/*.csv
-        for gitdir in /opt/gits/digital-preservartion-*; do \
-            echo "Refreshing $$gitdir and copying its CSVs..."; \
-            git -C "$$gitdir" pull; \
-            cp "$$gitdir/data/"*.csv /tmp/pg_io/digital-preservartion-XX; \
-        done
+	mkdir -p /tmp/pg_io/digital-preservartion-XX
+	rm -f /tmp/pg_io/digital-preservartion-XX/*.csv
+	for gitdir in /opt/gits/digital-preservartion-*; do \
+	   echo "Refreshing $$gitdir and copying its CSVs..."; \
+	   git -C "$$gitdir" pull; \
+	   cp "$$gitdir/data/"*.csv /tmp/pg_io/digital-preservartion-XX; \
+	done

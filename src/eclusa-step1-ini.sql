@@ -36,7 +36,7 @@ CREATE or replace FUNCTION eclusa.cityfolder_input_packdir(
   )
   SELECT username, jurisdiction_label,jurisdiction_osmid,
 	       jurisdiction_path||'/'||pack_fname as pack_path,
-	       replace(pack_fname,'_pk','')::int as pack_id
+	       replace(pack_fname,'_pk','')::int as pack_id, NULL::jsonb
   FROM (  -- t2a:
       SELECT *, pg_ls_dir(jurisdiction_path) as pack_fname
       FROM t1 ORDER BY 1,3
@@ -363,9 +363,25 @@ COMMENT ON FUNCTION api.cityfolder_input_files_user
 ;
 */
 
-
 -- -- -- -- -- -- -- --
 -- API Eclusa dispatchers:
+
+CREATE or replace FUNCTION API.uridisp_eclusa_checkuserdir(
+    p_uri text DEFAULT '',
+    p_args text DEFAULT NULL
+) RETURNS TABLE (LIKE api.ttpl_eclusa01_packdir) AS $f$
+    SELECT t2.username, t2.jurisdiction_label, t2.jurisdiction_osmid,
+           t2.pack_path, t2.pack_id, jsonb_build_object(
+      'donor_id',p.donor_id, 'user_resp',p.user_resp, 'accepted_date',p.accepted_date
+    ) as packinfo
+    FROM API.uri_dispatch_parser(p_uri) t1(p), -- rev ,'{eclusa,checkuserfiles_step1}'
+         LATERAL eclusa.cityfolder_input_packdir(t1.p[1]) t2 -- username
+         INNER JOIN optim.donatedPack p ON p.pack_id=t2.pack_id
+    ORDER BY pack_id
+$f$ language SQL immutable;
+COMMENT ON FUNCTION API.uridisp_eclusa_checkuserdir
+  IS 'List the user dir packages. A uri_dispatcher that runs eclusa.cityfolder_input_packdir() returning ttpl_eclusa01_packdir.'
+;
 
 -- http://api-test.addressforall.org/v1/eclusa/checkuserfiles_step1/igor
 CREATE or replace FUNCTION API.uridisp_eclusa_checkuserfiles_step1(
@@ -388,10 +404,73 @@ CREATE or replace FUNCTION API.uridisp_eclusa_checkuserfiles_step2(
 ) RETURNS TABLE (LIKE api.ttpl_eclusa02_cityfile1) AS $f$
         SELECT pack_id, ctype, fid, fname, is_valid, fmeta
         FROM API.uri_dispatch_parser(p_uri) t1(p), -- rev ,'{eclusa,checkuserfiles_step2}'
-             LATERAL eclusa.cityfolder_input('/home/'||t1.p[1]) t2
+             LATERAL eclusa.cityfolder_input(t1.p[1]) t2
         WHERE  COALESCE( t2.is_valid=text_to_boolean(t1.p[2]), true)
         ORDER BY 1,2
 $f$ language SQL immutable;
 COMMENT ON FUNCTION API.uridisp_eclusa_checkuserfiles_step2
   IS 'A uri_dispatcher that runs eclusa.cityfolder_input() returning ttpl_eclusa01_cityfile1.'
+;
+
+CREATE or replace FUNCTION API.uridisp_vw_core_jurisdiction(
+    p_uri text DEFAULT '', -- /vw_core/jurisdiction/{isolabel_ext}/{geojson}
+    p_args text DEFAULT NULL
+) RETURNS TABLE (LIKE api.ttpl_core01_jurisdiction) AS $f$
+        SELECT t2.*
+        FROM API.uri_dispatch_parser(p_uri) t1(p) -- rev ,'{eclusa,checkuserfiles_step2}'
+        INNER JOIN optim.jurisdiction  t2 -- or api.jurisdiction?
+        ON t1.p[1] IS NOT NULL
+        WHERE CASE
+          WHEN t1.p[1] LIKE 'br-__-___' THEN
+               t2.abbrev=upper(substr(t1.p[1],7))
+               AND substr(t2.isolabel_ext,1,6)=upper(substr(t1.p[1],1,6))
+          WHEN t1.p[1] iLIKE 'br;__;%' THEN
+               t2.lexlabel=lower(substr(t1.p[1],7))
+               AND substr(t2.isolabel_ext,1,6)=replace(upper(substr(t1.p[1],1,6)),';','-')
+           WHEN t1.p[1]~'^q\d+$' THEN t2.wikidata_id=substr(t1.p[1],2)::bigint
+           WHEN t1.p[1]~'^\d+$'  THEN CASE   -- ID numerico?
+               WHEN t1.p[2] IS NOT NULL THEN -- com segundo parametro?
+                t1.p[2]~'^\d+$' AND t2.jurisd_local_id=(t1.p[2])::int AND t2.jurisd_base_id=(t1.p[1])::int
+               ELSE t2.osm_id=(t1.p[1])::bigint -- OSM relation
+               END
+           ELSE CASE   -- codigo nao-numerico no primeiro parametro.
+               WHEN t1.p[2] IS NULL THEN upper(t2.isolabel_ext)=upper(t1.p[1])
+               ELSE -- dois parametros
+                  t2.jurisd_base_id=(SELECT jurisd_base_id FROM optim.jurisdiction WHERE isolabel_ext=upper(t1.p[1]))
+                  AND
+                  t1.p[2]~'^\d+$' AND t2.jurisd_local_id=(t1.p[2])::int -- por ex. IBGE_ID
+               END
+           END
+$f$ language SQL immutable;
+COMMENT ON FUNCTION API.uridisp_vw_core_jurisdiction
+  IS 'Jurisdiction basic properties, from many alternatives to express its identification.'
+;
+
+CREATE or replace FUNCTION API.uridisp_vw_core_donor(
+    p_uri text DEFAULT '', -- /vw_core/jurisdiction/{isolabel_ext}/{geojson}
+    p_args text DEFAULT NULL
+) RETURNS TABLE (LIKE api.ttpl_core02_donor) AS $f$
+        SELECT t2.id, scope, shortname, vat_id, legalName, wikidata_id, url, info,
+             CASE
+               WHEN j1.n_packs IS NULL THEN NULL::jsonb
+               ELSE jsonb_build_object('n_files',j1.n_files, 'n_packs',j1.n_packs, 'tot_bytes',j1.tot_bytes)
+             END as kx
+        FROM API.uri_dispatch_parser(p_uri) t1(p) -- rev ,'{eclusa,checkuserfiles_step2}'
+        INNER JOIN optim.donor t2 ON t1.p[1] IS NOT NULL
+        LEFT JOIN (
+          SELECT donor_id,
+                 count(distinct pack_id) AS n_packs,
+                 count(*) AS n_files, sum((fmeta->'size')::int) as tot_bytes
+          FROM optim.vw01_origin
+          GROUP BY donor_id
+        ) j1 ON j1.donor_id = t2.id
+        WHERE CASE
+          WHEN t1.p[1]~'^\d+$'  THEN t2.id=(t1.p[1])::int
+          WHEN t1.p[1]~'^q\d+$' THEN t2.wikidata_id=(substr(t1.p[1],2)::bigint)
+          WHEN t1.p[1]~'^[a-z]+:.+$' THEN t2.kx_vat_id=optim.vat_id_normalize(t1.p[1])
+          ELSE t2.shortname=upper(t1.p[1])
+          END
+$f$ language SQL immutable;
+COMMENT ON FUNCTION API.uridisp_vw_core_donor
+  IS 'Donor basic properties, from many alternatives to express its identification.'
 ;

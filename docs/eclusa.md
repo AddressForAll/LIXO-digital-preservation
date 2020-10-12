@@ -13,3 +13,12 @@ Todo o workflow e garantia de geração de *hash* é efetuado pela Eclusa.
 ## Códigos-fonte da Eclusa e demais softwares
 
 Ver [digital-preservation/src](http://git.AddressForAll.org/digital-preservartion/tree/master/src).
+
+## Reinicializacao depois do boot
+Com o boot do servidor todos os conteudos da pasta `/tmp` sao perdidos, devemos portanto reinicializa-la com as devidas permissoes.
+
+```sh
+sudo make -C /opt/gits/WS/src  ini_tmprefresh    # important
+make -C /opt/gits/WS/src  ini_database_list_tmp  # only a test
+sudo make -C /opt/gits/digital-preservartion/src  ecl_run    # important
+```
