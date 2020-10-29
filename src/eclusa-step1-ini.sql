@@ -59,10 +59,13 @@ CREATE or replace FUNCTION eclusa.cityfolder_input_files(
              'jurisdiction_osmid',jurisdiction_osmid,
              'pack_id',pack_id
            ) || to_jsonb( pg_stat_file(pack_path||'/'||fname) ) AS fmeta
+           -- or sonb_build_object AS packinfo for:
+            -- 'donor_id',p.donor_id, 'user_resp',p.user_resp, 'accepted_date',p.accepted_date
     FROM (  -- t1:
       SELECT *, pg_ls_dir(pack_path) as fname -- dir or file
-      FROM eclusa.cityfolder_input_packdir(p_user)
-      ORDER BY jurisdiction_label, fname
+      FROM eclusa.cityfolder_input_packdir(p_user) t2  -- need user_resp! use API.uridisp_eclusa_checkuserdir()
+      -- INNER JOIN optim.donatedPack p ON p.pack_id=t2.pack_id
+      ORDER BY jurisdiction_label, fname -- t2.pack_id
     ) t1
   ),
   tres2 AS ( -- main query:
@@ -117,15 +120,18 @@ CREATE or replace FUNCTION eclusa.cityfolder_input( -- joined
   checksum_file text DEFAULT 'sha256sum.txt'
 ) RETURNS TABLE (LIKE api.ttpl_eclusa02_cityfile1) AS $f$
    WITH t AS (
-      SELECT *, fmeta->>'fpath' AS fpath
+      SELECT *, fmeta->>'fpath' AS fpath,
+             u.username IS NULL OR  u.username!=pack_user! ???
       FROM eclusa.cityfolder_input_files(p_user) --  pack_id,ctype,fid,fname, is_valid, fmeta
            --LEFT JOIN optim.jurisdiction y ON (cf.cmeta->'jurisdiction_osmid')::bigint=y.osm_id
+           LEFT JOIN optim.auth_user u ON lower(p_user)=u.username
    )
    SELECT t.pack_id, t.ctype, t.fid, t.fname,
-        t.is_valid AND k2.hash is not null AS is_valid,
+        t.is_valid AND k2.hash is not null AND u.username IS NOT NULL AND  AS is_valid,
         CASE -- WHEN t.jurisd_local_id is null THEN t.fmeta || jsonb_build_object('is_valid_err', '#ER02: cityname unknown')
+           WHEN u.username IS NULL THEN t.fmeta || jsonb_build_object('is_valid_err', COALESCE(t.fmeta->>'is_valid_err','')||'#ER03: user not authorized or not select for this pack; ')
            WHEN k2.hash is not null THEN  t.fmeta || jsonb_build_object('hash',k2.hash, 'hashtype', k2.hashtype)
-           ELSE t.fmeta || jsonb_build_object('is_valid_err', COALESCE(t.fmeta->>'is_valid_err','')||'#ER03: hash not generated; ')
+           ELSE t.fmeta || jsonb_build_object('is_valid_err', COALESCE(t.fmeta->>'is_valid_err','')||'#ER04: hash not generated; ')
         END
    FROM t LEFT JOIN (
            SELECT k.* -- hash, hashtype, file, refpath
@@ -365,6 +371,9 @@ COMMENT ON FUNCTION api.cityfolder_input_files_user
 
 -- -- -- -- -- -- -- --
 -- API Eclusa dispatchers:
+
+-- revisar propagacao do usuario para validar no final!
+-- Ou decidir ja transmitir erro por aqui! nao pode criar pack se nao for o dono designado!
 
 CREATE or replace FUNCTION API.uridisp_eclusa_checkuserdir(
     p_uri text DEFAULT '',

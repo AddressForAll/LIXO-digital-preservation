@@ -11,6 +11,7 @@ done
 ## STEP2
 cd /tmp/pg_io/
 # rm -f runCpFiles-*.sh
+# faz INSERTS no ORIGIN
 psql "postgres://postgres@localhost/dl03t_main" -c "SELECT * FROM eclusa.vw01alldft_cityfolder_run_cpfiles"
 for sh_file in /tmp/pg_io/runCpFiles-*.sh; do
     echo "Running $sh_file..."
