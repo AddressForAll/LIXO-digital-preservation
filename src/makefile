@@ -21,6 +21,7 @@ ini_sql:
 
 ecl_run: /opt/lock-mkStatus/digitalPreservation-makeSQL.~feito
 	whoami
+	pwd
 	@echo "Run with sudo! (idempotent)"
 	mkdir -p /tmp/pg_io
 	chown postgres:postgres -R /tmp/pg_io
@@ -28,7 +29,7 @@ ecl_run: /opt/lock-mkStatus/digitalPreservation-makeSQL.~feito
 	psql "postgres://postgres@localhost/dl03t_main" -c "SELECT optim.fdw_wgets_script('refresh')"
 	sh /tmp/pg_io/run_wgets-refresh.sh
 	psql "postgres://postgres@localhost/dl03t_main" -c "SELECT optim.fdw_wgets_refresh(false)" # (donor e donatedpack) true on master
-	sh eclusa-mkCpHashFiles.sh
+	sh /opt/gits/digital-preservartion/src/eclusa-mkCpHashFiles.sh
 	psql "postgres://postgres@localhost/dl03t_main" -c "SELECT * FROM eclusa.vw03alldft_cityfolder_ins" # insert into origin
 
 ecl_out: ecl_run

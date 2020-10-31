@@ -317,7 +317,8 @@ CREATE or replace FUNCTION eclusa.cityfolder_run_cpfiles(
 ) RETURNS text AS $f$
   WITH
   t0 AS (SELECT p_output_shfile ||'-'|| p_user ||'.sh' AS sh_file),
-  t1 AS (SELECT *, pg_catalog.pg_file_unlink(sh_file) as rm_ret FROM t0)
+  t1 AS (SELECT *, pg_catalog.pg_file_unlink(sh_file) as rm_ret FROM t0),
+  t2 AS (
    SELECT
     MAX('Arquivo anterior '||CASE WHEN t1.rm_ret THEN 'removido' ELSE 'ausente' END)
     ||E'\nGravados '
@@ -337,6 +338,9 @@ CREATE or replace FUNCTION eclusa.cityfolder_run_cpfiles(
      ) -- FALTA conferir se foi mesmo copiado nos backups de hashes.
      ORDER BY 1
    ) t
+ ) -- \t2
+ SELECT COALESCE( t2.fim, volat_file_write('Nada a copiar com '||t0.sh_file, t0.sh_file, '# vazio',false) )
+ FROM t0 LEFT JOIN t2 ON true
 $f$ language SQL immutable;
 
 CREATE or replace VIEW eclusa.vw01alldft_cityfolder_run_cpfiles AS   -- mudar vw02all!
