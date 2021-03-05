@@ -44,10 +44,10 @@ CG,Congo,,,,,
 CH,Switzerland,,,,,
 CI,Côte d'Ivoire,,,,,
 CK,Cook Islands,,,,,
-CL,Chile,preparing,preparing,Chile,Q298,167454
+CL,Chile,preparing,preparing,República de Chile,Q298,167454
 CM,Cameroon,,,,,
 CN,China,,,,,
-CO,Colombia,preparing,preparing,Colombia,Q739,120027
+CO,Colombia,preparing,preparing,República de Colombia,Q739,120027
 CR,Costa Rica,,,,,
 CU,Cuba,,,,,
 CV,Cape Verde,,,,,
@@ -61,7 +61,7 @@ DK,Denmark,,,,,
 DM,Dominica,,,,,
 DO,Dominican Republic,,,,,
 DZ,Algeria,,,,,
-EC,Ecuador,preparing,preparing,Ecuador,Q736,108089
+EC,Ecuador,preparing,preparing,República del Ecuador,Q736,108089
 EE,Estonia,,,,,
 EG,Egypt,,,,,
 EH,Western Sahara,,,,,
@@ -172,7 +172,7 @@ NU,Niue,,,,,
 NZ,New Zealand,,,,,
 OM,Oman,,,,,
 PA,Panama,,,,,
-PE,Peru,preparing,preparing,Perú,Q419,288247
+PE,Peru,preparing,preparing,República del Perú,Q419,288247
 PF,French Polynesia,,,,,
 PG,Papua New Guinea,,,,,
 PH,Philippines,,,,,
@@ -236,7 +236,7 @@ UY,Uruguay,,,,,
 UZ,Uzbekistan,,,,,
 VA,Holy See (Vatican City State),,,,,
 VC,Saint Vincent and the Grenadines,,,,,
-VE,"Venezuela, Bolivarian Republic of",preparing,preparing,Venezuela,Q717,272644
+VE,"Venezuela, Bolivarian Republic of",preparing,preparing,República Bolivariana da Venezuela,Q717,272644
 VG,"Virgin Islands, British",,,,,
 VI,"Virgin Islands, U.S.",,,,,
 VN,Viet Nam,,,,,
