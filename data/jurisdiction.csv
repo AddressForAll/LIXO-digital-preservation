@@ -1,243 +1,243 @@
-osm_id,jurisd_base_id,name_en,name,abbrev,ccc,status_dataset
-9407,20,Andorra,Andorra,AD,376,backlog
-307763,784,United Arab Emirates,United Arab Emirates,AE,971,backlog
-303427,4,Afghanistan,Afghanistan,AF,93,backlog
-536900,28,Antigua and Barbuda,Antigua and Barbuda,AG,1268,backlog
-2177161,660,Anguilla,Anguilla,AI,1264,backlog
-53292,8,Albania,Αλβανία,AL,355,backlog
-364066,51,Armenia,Հայաստան,AM,374,backlog
-195267,24,Angola,Angola,AO,244,backlog
-286393,32,Argentina,Argentina,AR,54,backlog
-16239,40,Austria,Republik Österreich,AT,43,backlog
-80500,36,Australia,Australia,AU,61,backlog
-1231749,533,Aruba,Aruba,AW,297,backlog
-2375170,248,Åland,Ahvenanmaa,AX,,backlog
-364110,31,Azerbaijan,Azərbaycan,AZ,994,backlog
-2528142,70,Bosnia and Herzegovina,Bosna i Hercegovina,BA,387,backlog
-547511,52,Barbados,Barbados,BB,1246,backlog
-184640,50,Bangladesh,গণপ্রজাতন্ত্রী বাংলাদেশ,BD,880,backlog
-52411,56,Belgium,Königreich Belgien,BE,32,backlog
-192783,854,Burkina Faso,Burkina Faso,BF,226,backlog
-186382,100,Bulgaria,България,BG,359,backlog
-378734,48,Bahrain,Bahrain,BH,973,backlog
-195269,108,Burundi,Uburundi,BI,257,backlog
-192784,204,Benin,Benin,BJ,229,backlog
-1993208,60,Bermuda,Bermuda,BM,1441,backlog
-2103120,96,Brunei,Brunei,BN,673,backlog
-252645,68,Bolivia,Wuliwya Suyu,BO,591,backlog
-1216720,535,Caribbean Netherlands,Caribbean Netherlands,BQ,599,backlog
-547469,44,The Bahamas,Commonwealth of the Bahamas,BS,1242,backlog
-184629,64,Bhutan,Bhutan,BT,975,backlog
-1889339,72,Botswana,Botswana,BW,267,backlog
-59065,112,Belarus,Беларусь,BY,375,backlog
-287827,84,Belize,Belize,BZ,501,backlog
-1428125,124,Canada,Canada,CA,1,backlog
-82636,166,Cocos (Keeling) Islands,Cocos (Keeling) Islands,CC,61891,backlog
-192795,180,Democratic Republic of the Congo,République Démocratique du Congo,CD,243,backlog
-192790,140,Central African Republic,Republique Centrafricaine,CF,236,backlog
-192794,178,Republic of the Congo,République du Congo,CG,242,backlog
-51701,756,Switzerland,Schweizerische Eidgenossenschaft,CH,41,backlog
-192779,384,Ivory Coast,République de Côte d'Ivoire,CI,225,backlog
-2184233,184,Cook Islands,Kūki 'Āirani,CK,682,backlog
-167454,152,Chile,Chile,CL,56,PREPARING
-192830,120,Cameroon,République du Cameroun,CM,237,backlog
-270056,156,People's Republic of China,中华人民共和国,CN,86,backlog
-120027,170,Colombia,Colombia,CO,57,PREPARING
-287667,188,Costa Rica,República de Costa Rica,CR,506,backlog
-307833,192,Cuba,República de Cuba,CU,53,backlog
-535774,132,Cape Verde,República de Cabo Verde,CV,238,backlog
-1216719,531,Curaçao,Curaçao,CW,5999,backlog
-2177207,162,Christmas Island,Territory of Christmas Island,CX,61,backlog
-307787,196,Cyprus,Κυπριακή Δημοκρατία,CY,357,backlog
-51684,203,Czech Republic,Česká republika,CZ,420,backlog
-51477,276,Germany,Bundesrepublik Deutschland,DE,49,backlog
-2732108,-84,Diego Garcia,Diego Garcia,DG,,backlog
-192801,262,Djibouti,جمهورية جيبوتي,DJ,253,backlog
-50046,208,Denmark,Danmark,DK,45,backlog
-307823,212,Dominica,Commonwealth of Dominica,DM,1767,backlog
-307828,214,Dominican Republic,República Dominicana,DO,1809,backlog
-192756,12,Algeria,Algeria,DZ,213,backlog
-108089,218,Ecuador,República del Ecuador,EC,593,PREPARING
-79510,233,Estonia,Eesti Vabariik,EE,372,backlog
-1473947,818,Egypt,جُمهورِيّةُ مِصرَ العَرَبيّةِ,EG,20,backlog
-2559126,732,Western Sahara,الصحراء الغربية,EH,212,backlog
-296961,232,Eritrea,إرتريا,ER,291,backlog
-1311341,724,Spain,España,ES,34,backlog
-192800,231,Ethiopia,Ethiopia,ET,251,backlog
-54224,246,Finland,Suomi,FI,358,backlog
-571747,242,Fiji,Republic of Fiji,FJ,679,backlog
-2185374,238,Falkland Islands,Falkland Islands,FK,500,backlog
-571802,583,Federated States of Micronesia,Federated States of Micronesia,FM,691,backlog
-52939,234,Faroe Islands,Føroyar,FO,298,backlog
-2202162,250,France,République française,FR,33,backlog
-192793,266,Gabon,République gabonaise,GA,241,backlog
-62149,826,United Kingdom,United Kingdom of Great Britain and Northern Ireland,GB,44,backlog
-550727,308,Grenada,Grenada,GD,1473,backlog
-28699,268,Georgia,საქართველო,GE,995,backlog
-1260551,254,French Guiana,Guyane,GF,594,backlog
-270009,831,Guernsey,Guernsey,GG,44,backlog
-192781,288,Ghana,Ghana,GH,233,backlog
-1278736,292,Gibraltar,Gibraltar,GI,350,backlog
-2184073,304,Greenland,Kalaallit Nunaat,GL,299,backlog
-192774,270,The Gambia,Republic of The Gambia,GM,220,backlog
-192778,324,Guinea,République de Guinée,GN,224,backlog
-1401835,312,Guadeloupe,Guadeloupe,GP,590,backlog
-192791,226,Equatorial Guinea,República de Guinea Ecuatorial,GQ,240,backlog
-192307,300,Greece,Ελλάδα,GR,30,backlog
-1983628,239,South Georgia and the South Sandwich Islands,South Georgia and the South Sandwich Islands,GS,500,backlog
-1521463,320,Guatemala,Guatemala,GT,502,backlog
-1152532,316,Guam,Guåhån,GU,1671,backlog
-192776,624,Guinea-Bissau,República da Guiné-Bissau,GW,245,backlog
-287083,328,Guyana,Co-operative Republic of Guyana,GY,592,backlog
-913110,344,Hong Kong,香港,HK,852,backlog
-2177227,334,Heard Island and McDonald Islands,Heard Island and McDonald Islands,HM,,backlog
-287670,340,Honduras,República de Honduras,HN,504,backlog
-214885,191,Croatia,Hrvatska,HR,385,backlog
-307829,332,Haiti,Ayiti,HT,509,backlog
-21335,348,Hungary,Magyarország,HU,36,backlog
-304751,360,Indonesia,Indonesia,ID,62,backlog
-62273,372,Ireland,Ireland,IE,353,backlog
-1473946,376,Israel,יִשְרָאֵל,IL,972,backlog
-62269,833,Isle of Man,Isle of Man,IM,44,backlog
-304716,356,India,Republic of India,IN,91,backlog
-1993867,86,British Indian Ocean Territory,British Indian Ocean Territory,IO,246,backlog
-304934,368,Iraq,Iraq,IQ,964,backlog
-304938,364,Iran,ߌߙߊ߲߫,IR,98,backlog
-299133,352,Iceland,Ísland,IS,354,backlog
-365331,380,Italy,Italia,IT,39,backlog
-367988,832,Jersey,Jersey,JE,44,backlog
-555017,388,Jamaica,Jamaica,JM,1876,backlog
-184818,400,Jordan,Jordan,JO,962,backlog
-382313,392,Japan,日本,JP,81,backlog
-192798,404,Kenya,Republic of Kenya,KE,254,backlog
-178009,417,Kyrgyzstan,Кыргызстан,KG,996,backlog
-49898,116,Cambodia,កម្ពុជា,KH,855,backlog
-571178,296,Kiribati,Republic of Kiribati,KI,686,backlog
-535790,174,Comoros,الاتحاد القمري,KM,269,backlog
-536899,659,Saint Kitts and Nevis,Federation of Saint Kitts and Nevis,KN,1869,backlog
-192734,408,North Korea,조선민주주의인민공화국,KP,850,backlog
-307756,410,South Korea,대한민국,KR,82,backlog
-305099,414,Kuwait,Kuwait,KW,965,backlog
-2185366,136,Cayman Islands,Cayman Islands,KY,1345,backlog
-214665,398,Kazakhstan,Қазақстан,KZ,7,backlog
-49903,418,Laos,ສາທາລະນະລັດ ປະຊາທິປະໄຕ ປະຊາຊົນລາວ,LA,856,backlog
-184843,422,Lebanon,الجمهورية اللبنانية,LB,961,backlog
-550728,662,Saint Lucia,Saint Lucia,LC,1758,backlog
-1155955,438,Liechtenstein,Fürstentum Liechtenstein,LI,423,backlog
-536807,144,Sri Lanka,ශ්රී ලංකා ප්රජාතාන්ත්රික සමාජවාදී ජනරජය,LK,94,backlog
-192780,430,Liberia,Republic of Liberia,LR,231,backlog
-2093234,426,Lesotho,Lesotho,LS,266,backlog
-72596,440,Lithuania,Lietuva,LT,370,backlog
-2171347,442,Luxembourg,Luxemburg,LU,352,backlog
-72594,428,Latvia,Latvija,LV,371,backlog
-192758,434,Libya,دولة ليبيا,LY,218,backlog
-3630439,504,Morocco,Morocco,MA,212,backlog
-36990,492,Monaco,Monaco,MC,377,backlog
-58974,498,Moldova,Молдова,MD,373,backlog
-53296,499,Montenegro,Crna Gora,ME,382,backlog
-447325,450,Madagascar,République de Madagascar,MG,261,backlog
-571771,584,Marshall Islands,Aolepān Aorōkin M̧ajeļ,MH,692,backlog
-53293,807,North Macedonia,Македонија,MK,389,backlog
-192785,466,Mali,Mali,ML,223,backlog
-50371,104,Myanmar,ပြည်ထောင်စု သမ္မတ မြန်မာနိုင်ငံတော်,MM,95,backlog
-161033,496,Mongolia,Монгол Улс,MN,976,backlog
-1867188,446,Macau,Região Administrativa Especial de Macau,MO,853,backlog
-306004,580,Northern Mariana Islands,Northern Mariana Islands,MP,1670,backlog
-1891495,474,Martinique,Martinique,MQ,596,backlog
-192763,478,Mauritania,الجمهورية الإسلامية الموريتانية,MR,222,backlog
-537257,500,Montserrat,Montserrat,MS,1664,backlog
-365307,470,Malta,Malta,MT,356,backlog
-535828,480,Mauritius,République de Maurice,MU,230,backlog
-536773,462,Maldives,ދިވެހިރާއްޖެ,MV,960,backlog
-195290,454,Malawi,Republic of Malawi,MW,265,backlog
-114686,484,Mexico,México,MX,52,backlog
-2108121,458,Malaysia,Malaysia,MY,60,backlog
-195273,508,Mozambique,República de Moçambique,MZ,258,backlog
-195266,516,Namibia,Republiek van Namibië,NA,264,backlog
-3407643,540,New Caledonia,Nouvelle-Calédonie,NC,687,backlog
-192786,562,Niger,Nijar,NE,227,backlog
-2386068,574,Norfolk Island,Norfolk Island,NF,6723,backlog
-192787,566,Nigeria,Nijeriya,NG,234,backlog
-287666,558,Nicaragua,República de Nicaragua,NI,505,backlog
-47796,528,Netherlands,Nederland,NL,31,backlog
-1059668,578,Norway,Kongeriket Norge,NO,47,backlog
-184633,524,Nepal,नेपाल,NP,977,backlog
-571804,520,Nauru,Naoero,NR,674,backlog
-1558556,570,Niue,Niue,NU,683,backlog
-556706,554,New Zealand,Aotearoa,NZ,64,backlog
-305138,512,Oman,سلطنة عُمان,OM,968,backlog
-287668,591,Panama,Panama,PA,507,backlog
-288247,604,Peru,República del Perú,PE,51,PREPARING
-307866,598,Papua New Guinea,Independent State of Papua New Guinea,PG,675,backlog
-443174,608,Philippines,Pilipinas,PH,63,backlog
-307573,586,Pakistan,پاکستان,PK,92,backlog
-49715,616,Poland,Polska,PL,48,backlog
-2185375,612,Pitcairn Islands,Pitcairn Islands,PN,64,backlog
-4422604,630,Puerto Rico,Commonwealth of Puerto Rico,PR,1787,backlog
-1703814,275,State of Palestine,State of Palestine,PS,970,backlog
-295480,620,Portugal,Portugal,PT,351,backlog
-571805,585,Palau,Republic of Palau,PW,680,backlog
-287077,600,Paraguay,República del Paraguay,PY,595,backlog
-305095,634,Qatar,Qatar,QA,974,backlog
-77601,638,Réunion,La Réunion,RE,262,backlog
-90689,642,Romania,România,RO,40,backlog
-1741311,688,Serbia,Србија,RS,381,backlog
-60189,643,Russia,Российская Федерация,RU,7,backlog
-171496,646,Rwanda,Rwanda,RW,250,backlog
-307584,682,Saudi Arabia,المملكة العربية السعودية,SA,966,backlog
-1857436,90,Solomon Islands,Solomon Islands,SB,677,backlog
-536765,690,Seychelles,République des Seychelles,SC,248,backlog
-192789,729,Sudan,جمهورية السودان,SD,249,backlog
-52822,752,Sweden,Sverige,SE,46,backlog
-536780,702,Singapore,Singapore,SG,65,backlog
-1964272,654,"Saint Helena, Ascension and Tristan da Cunha","St Helena, Ascension & Tristan da Cunha",SH,247,backlog
-218657,705,Slovenia,Slovenija,SI,386,backlog
-3245620,744,Svalbard and Jan Mayen,Svalbard and Jan Mayen,SJ,,backlog
-14296,703,Slovakia,Slovenská republika,SK,421,backlog
-192777,694,Sierra Leone,Republic of Sierra Leone,SL,232,backlog
-54624,674,San Marino,San Marino,SM,378,backlog
-192775,686,Senegal,Senegaal,SN,221,backlog
-192799,706,Somalia,جمهورية الصومال الفدرالية,SO,252,backlog
-287082,740,Suriname,Republiek Suriname,SR,597,backlog
-1656678,728,South Sudan,Republic of South Sudan,SS,211,backlog
-535880,678,São Tomé and Príncipe,República Democrática de São Tomé e Príncipe,ST,239,backlog
-1520612,222,El Salvador,El Salvador,SV,503,backlog
-1231790,534,Sint Maarten,Sint Maarten,SX,1721,backlog
-184840,760,Syria,al-Jumhūriyya al-ʿArabiyya al-Sūriyya,SY,963,backlog
-88210,748,Eswatini,Umbuso weSwatini,SZ,268,backlog
-547479,796,Turks and Caicos Islands,Turks and Caicos Islands,TC,1649,backlog
-2361304,148,Chad,Chad,TD,235,backlog
-192782,768,Togo,Togo,TG,228,backlog
-2067731,764,Thailand,ประเทศไทย,TH,66,backlog
-214626,762,Tajikistan,Тоҷикистон,TJ,992,backlog
-2186600,772,Tokelau,Tokelau,TK,690,backlog
-305142,626,East Timor,East Timor,TL,670,backlog
-223026,795,Turkmenistan,Türkmenistan,TM,993,backlog
-192757,788,Tunisia,تونس,TN,216,backlog
-2186665,776,Tonga,Tonga,TO,676,backlog
-174737,792,Turkey,Türkiye,TR,90,backlog
-555717,780,Trinidad and Tobago,Trinidad and Tobago,TT,1868,backlog
-2177266,798,Tuvalu,Tuvalu,TV,688,backlog
-449220,158,Taiwan,Chûng-fà Mìn-koet,TW,886,backlog
-195270,834,Tanzania,United Republic of Tanzania,TZ,255,backlog
-60199,804,Ukraine,Украина,UA,380,backlog
-192796,800,Uganda,Uganda,UG,256,backlog
-2185386,581,United States Minor Outlying Islands,United States Minor Outlying Islands,UM,,backlog
-148838,840,United States of America,United States of America,US,1,backlog
-287072,858,Uruguay,Uruguay,UY,598,backlog
-196240,860,Uzbekistan,Oʻzbekiston,UZ,998,backlog
-36989,336,Vatican City,Città del Vaticano,VA,379,backlog
-550725,670,Saint Vincent and the Grenadines,Saint Vincent and the Grenadines,VC,1784,backlog
-272644,862,Venezuela,República Bolivariana de Venezuela,VE,58,PREPARING
-285454,92,British Virgin Islands,British Virgin Islands,VG,1284,backlog
-286898,850,United States Virgin Islands,United States Virgin Islands,VI,1340,backlog
-49915,704,Vietnam,Việt Nam,VN,84,backlog
-2177246,548,Vanuatu,Ripablik blong Vanuatu,VU,678,backlog
-1872673,882,Samoa,Independent State of Samoa,WS,685,backlog
-2088990,-608,Kosovo,Republika e Kosovës,XK,383,backlog
-305092,887,Yemen,Yemen,YE,967,backlog
-3388394,175,Mayotte,Mayotte,YT,262,backlog
-87565,710,South Africa,Suid-Afrika,ZA,27,backlog
-195271,894,Zambia,Republic of Zambia,ZM,260,backlog
-195272,716,Zimbabwe,Zimbabwe,ZW,263,backlog
-59470,76,Brazil,Brasil,BR,55,ACTIVE
+abbrev,osm_id,jurisd_base_id,name_en,name,ccc,status_dataset
+AD,9407,20,Andorra,Andorra,376,backlog
+AE,307763,784,United Arab Emirates,United Arab Emirates,971,backlog
+AF,303427,4,Afghanistan,Afghanistan,93,backlog
+AG,536900,28,Antigua and Barbuda,Antigua and Barbuda,1268,backlog
+AI,2177161,660,Anguilla,Anguilla,1264,backlog
+AL,53292,8,Albania,Αλβανία,355,backlog
+AM,364066,51,Armenia,Հայաստան,374,backlog
+AO,195267,24,Angola,Angola,244,backlog
+AR,286393,32,Argentina,Argentina,54,backlog
+AT,16239,40,Austria,Republik Österreich,43,backlog
+AU,80500,36,Australia,Australia,61,backlog
+AW,1231749,533,Aruba,Aruba,297,backlog
+AX,2375170,248,Åland,Ahvenanmaa,,backlog
+AZ,364110,31,Azerbaijan,Azərbaycan,994,backlog
+BA,2528142,70,Bosnia and Herzegovina,Bosna i Hercegovina,387,backlog
+BB,547511,52,Barbados,Barbados,1246,backlog
+BD,184640,50,Bangladesh,গণপ্রজাতন্ত্রী বাংলাদেশ,880,backlog
+BE,52411,56,Belgium,Königreich Belgien,32,backlog
+BF,192783,854,Burkina Faso,Burkina Faso,226,backlog
+BG,186382,100,Bulgaria,България,359,backlog
+BH,378734,48,Bahrain,Bahrain,973,backlog
+BI,195269,108,Burundi,Uburundi,257,backlog
+BJ,192784,204,Benin,Benin,229,backlog
+BM,1993208,60,Bermuda,Bermuda,1441,backlog
+BN,2103120,96,Brunei,Brunei,673,backlog
+BO,252645,68,Bolivia,Wuliwya Suyu,591,backlog
+BQ,1216720,535,Caribbean Netherlands,Caribbean Netherlands,599,backlog
+BR,59470,76,Brazil,Brasil,55,ACTIVE
+BS,547469,44,The Bahamas,Commonwealth of the Bahamas,1242,backlog
+BT,184629,64,Bhutan,Bhutan,975,backlog
+BW,1889339,72,Botswana,Botswana,267,backlog
+BY,59065,112,Belarus,Беларусь,375,backlog
+BZ,287827,84,Belize,Belize,501,backlog
+CA,1428125,124,Canada,Canada,1,backlog
+CC,82636,166,Cocos (Keeling) Islands,Cocos (Keeling) Islands,61891,backlog
+CD,192795,180,Democratic Republic of the Congo,République Démocratique du Congo,243,backlog
+CF,192790,140,Central African Republic,Republique Centrafricaine,236,backlog
+CG,192794,178,Republic of the Congo,République du Congo,242,backlog
+CH,51701,756,Switzerland,Schweizerische Eidgenossenschaft,41,backlog
+CI,192779,384,Ivory Coast,République de Côte d'Ivoire,225,backlog
+CK,2184233,184,Cook Islands,Kūki 'Āirani,682,backlog
+CL,167454,152,Chile,Chile,56,PREPARING
+CM,192830,120,Cameroon,République du Cameroun,237,backlog
+CN,270056,156,People's Republic of China,中华人民共和国,86,backlog
+CO,120027,170,Colombia,Colombia,57,PREPARING
+CR,287667,188,Costa Rica,República de Costa Rica,506,backlog
+CU,307833,192,Cuba,República de Cuba,53,backlog
+CV,535774,132,Cape Verde,República de Cabo Verde,238,backlog
+CW,1216719,531,Curaçao,Curaçao,5999,backlog
+CX,2177207,162,Christmas Island,Territory of Christmas Island,61,backlog
+CY,307787,196,Cyprus,Κυπριακή Δημοκρατία,357,backlog
+CZ,51684,203,Czech Republic,Česká republika,420,backlog
+DE,51477,276,Germany,Bundesrepublik Deutschland,49,backlog
+DG,2732108,-84,Diego Garcia,Diego Garcia,,backlog
+DJ,192801,262,Djibouti,جمهورية جيبوتي,253,backlog
+DK,50046,208,Denmark,Danmark,45,backlog
+DM,307823,212,Dominica,Commonwealth of Dominica,1767,backlog
+DO,307828,214,Dominican Republic,República Dominicana,1809,backlog
+DZ,192756,12,Algeria,Algeria,213,backlog
+EC,108089,218,Ecuador,República del Ecuador,593,PREPARING
+EE,79510,233,Estonia,Eesti Vabariik,372,backlog
+EG,1473947,818,Egypt,جُمهورِيّةُ مِصرَ العَرَبيّةِ,20,backlog
+EH,2559126,732,Western Sahara,الصحراء الغربية,212,backlog
+ER,296961,232,Eritrea,إرتريا,291,backlog
+ES,1311341,724,Spain,España,34,backlog
+ET,192800,231,Ethiopia,Ethiopia,251,backlog
+FI,54224,246,Finland,Suomi,358,backlog
+FJ,571747,242,Fiji,Republic of Fiji,679,backlog
+FK,2185374,238,Falkland Islands,Falkland Islands,500,backlog
+FM,571802,583,Federated States of Micronesia,Federated States of Micronesia,691,backlog
+FO,52939,234,Faroe Islands,Føroyar,298,backlog
+FR,2202162,250,France,République française,33,backlog
+GA,192793,266,Gabon,République gabonaise,241,backlog
+GB,62149,826,United Kingdom,United Kingdom of Great Britain and Northern Ireland,44,backlog
+GD,550727,308,Grenada,Grenada,1473,backlog
+GE,28699,268,Georgia,საქართველო,995,backlog
+GF,1260551,254,French Guiana,Guyane,594,backlog
+GG,270009,831,Guernsey,Guernsey,44,backlog
+GH,192781,288,Ghana,Ghana,233,backlog
+GI,1278736,292,Gibraltar,Gibraltar,350,backlog
+GL,2184073,304,Greenland,Kalaallit Nunaat,299,backlog
+GM,192774,270,The Gambia,Republic of The Gambia,220,backlog
+GN,192778,324,Guinea,République de Guinée,224,backlog
+GP,1401835,312,Guadeloupe,Guadeloupe,590,backlog
+GQ,192791,226,Equatorial Guinea,República de Guinea Ecuatorial,240,backlog
+GR,192307,300,Greece,Ελλάδα,30,backlog
+GS,1983628,239,South Georgia and the South Sandwich Islands,South Georgia and the South Sandwich Islands,500,backlog
+GT,1521463,320,Guatemala,Guatemala,502,backlog
+GU,1152532,316,Guam,Guåhån,1671,backlog
+GW,192776,624,Guinea-Bissau,República da Guiné-Bissau,245,backlog
+GY,287083,328,Guyana,Co-operative Republic of Guyana,592,backlog
+HK,913110,344,Hong Kong,香港,852,backlog
+HM,2177227,334,Heard Island and McDonald Islands,Heard Island and McDonald Islands,,backlog
+HN,287670,340,Honduras,República de Honduras,504,backlog
+HR,214885,191,Croatia,Hrvatska,385,backlog
+HT,307829,332,Haiti,Ayiti,509,backlog
+HU,21335,348,Hungary,Magyarország,36,backlog
+ID,304751,360,Indonesia,Indonesia,62,backlog
+IE,62273,372,Ireland,Ireland,353,backlog
+IL,1473946,376,Israel,יִשְרָאֵל,972,backlog
+IM,62269,833,Isle of Man,Isle of Man,44,backlog
+IN,304716,356,India,Republic of India,91,backlog
+IO,1993867,86,British Indian Ocean Territory,British Indian Ocean Territory,246,backlog
+IQ,304934,368,Iraq,Iraq,964,backlog
+IR,304938,364,Iran,ߌߙߊ߲߫,98,backlog
+IS,299133,352,Iceland,Ísland,354,backlog
+IT,365331,380,Italy,Italia,39,backlog
+JE,367988,832,Jersey,Jersey,44,backlog
+JM,555017,388,Jamaica,Jamaica,1876,backlog
+JO,184818,400,Jordan,Jordan,962,backlog
+JP,382313,392,Japan,日本,81,backlog
+KE,192798,404,Kenya,Republic of Kenya,254,backlog
+KG,178009,417,Kyrgyzstan,Кыргызстан,996,backlog
+KH,49898,116,Cambodia,កម្ពុជា,855,backlog
+KI,571178,296,Kiribati,Republic of Kiribati,686,backlog
+KM,535790,174,Comoros,الاتحاد القمري,269,backlog
+KN,536899,659,Saint Kitts and Nevis,Federation of Saint Kitts and Nevis,1869,backlog
+KP,192734,408,North Korea,조선민주주의인민공화국,850,backlog
+KR,307756,410,South Korea,대한민국,82,backlog
+KW,305099,414,Kuwait,Kuwait,965,backlog
+KY,2185366,136,Cayman Islands,Cayman Islands,1345,backlog
+KZ,214665,398,Kazakhstan,Қазақстан,7,backlog
+LA,49903,418,Laos,ສາທາລະນະລັດ ປະຊາທິປະໄຕ ປະຊາຊົນລາວ,856,backlog
+LB,184843,422,Lebanon,الجمهورية اللبنانية,961,backlog
+LC,550728,662,Saint Lucia,Saint Lucia,1758,backlog
+LI,1155955,438,Liechtenstein,Fürstentum Liechtenstein,423,backlog
+LK,536807,144,Sri Lanka,ශ්රී ලංකා ප්රජාතාන්ත්රික සමාජවාදී ජනරජය,94,backlog
+LR,192780,430,Liberia,Republic of Liberia,231,backlog
+LS,2093234,426,Lesotho,Lesotho,266,backlog
+LT,72596,440,Lithuania,Lietuva,370,backlog
+LU,2171347,442,Luxembourg,Luxemburg,352,backlog
+LV,72594,428,Latvia,Latvija,371,backlog
+LY,192758,434,Libya,دولة ليبيا,218,backlog
+MA,3630439,504,Morocco,Morocco,212,backlog
+MC,36990,492,Monaco,Monaco,377,backlog
+MD,58974,498,Moldova,Молдова,373,backlog
+ME,53296,499,Montenegro,Crna Gora,382,backlog
+MG,447325,450,Madagascar,République de Madagascar,261,backlog
+MH,571771,584,Marshall Islands,Aolepān Aorōkin M̧ajeļ,692,backlog
+MK,53293,807,North Macedonia,Македонија,389,backlog
+ML,192785,466,Mali,Mali,223,backlog
+MM,50371,104,Myanmar,ပြည်ထောင်စု သမ္မတ မြန်မာနိုင်ငံတော်,95,backlog
+MN,161033,496,Mongolia,Монгол Улс,976,backlog
+MO,1867188,446,Macau,Região Administrativa Especial de Macau,853,backlog
+MP,306004,580,Northern Mariana Islands,Northern Mariana Islands,1670,backlog
+MQ,1891495,474,Martinique,Martinique,596,backlog
+MR,192763,478,Mauritania,الجمهورية الإسلامية الموريتانية,222,backlog
+MS,537257,500,Montserrat,Montserrat,1664,backlog
+MT,365307,470,Malta,Malta,356,backlog
+MU,535828,480,Mauritius,République de Maurice,230,backlog
+MV,536773,462,Maldives,ދިވެހިރާއްޖެ,960,backlog
+MW,195290,454,Malawi,Republic of Malawi,265,backlog
+MX,114686,484,Mexico,México,52,backlog
+MY,2108121,458,Malaysia,Malaysia,60,backlog
+MZ,195273,508,Mozambique,República de Moçambique,258,backlog
+NA,195266,516,Namibia,Republiek van Namibië,264,backlog
+NC,3407643,540,New Caledonia,Nouvelle-Calédonie,687,backlog
+NE,192786,562,Niger,Nijar,227,backlog
+NF,2386068,574,Norfolk Island,Norfolk Island,6723,backlog
+NG,192787,566,Nigeria,Nijeriya,234,backlog
+NI,287666,558,Nicaragua,República de Nicaragua,505,backlog
+NL,47796,528,Netherlands,Nederland,31,backlog
+NO,1059668,578,Norway,Kongeriket Norge,47,backlog
+NP,184633,524,Nepal,नेपाल,977,backlog
+NR,571804,520,Nauru,Naoero,674,backlog
+NU,1558556,570,Niue,Niue,683,backlog
+NZ,556706,554,New Zealand,Aotearoa,64,backlog
+OM,305138,512,Oman,سلطنة عُمان,968,backlog
+PA,287668,591,Panama,Panama,507,backlog
+PE,288247,604,Peru,República del Perú,51,PREPARING
+PG,307866,598,Papua New Guinea,Independent State of Papua New Guinea,675,backlog
+PH,443174,608,Philippines,Pilipinas,63,backlog
+PK,307573,586,Pakistan,پاکستان,92,backlog
+PL,49715,616,Poland,Polska,48,backlog
+PN,2185375,612,Pitcairn Islands,Pitcairn Islands,64,backlog
+PR,4422604,630,Puerto Rico,Commonwealth of Puerto Rico,1787,backlog
+PS,1703814,275,State of Palestine,State of Palestine,970,backlog
+PT,295480,620,Portugal,Portugal,351,backlog
+PW,571805,585,Palau,Republic of Palau,680,backlog
+PY,287077,600,Paraguay,República del Paraguay,595,backlog
+QA,305095,634,Qatar,Qatar,974,backlog
+RE,77601,638,Réunion,La Réunion,262,backlog
+RO,90689,642,Romania,România,40,backlog
+RS,1741311,688,Serbia,Србија,381,backlog
+RU,60189,643,Russia,Российская Федерация,7,backlog
+RW,171496,646,Rwanda,Rwanda,250,backlog
+SA,307584,682,Saudi Arabia,المملكة العربية السعودية,966,backlog
+SB,1857436,90,Solomon Islands,Solomon Islands,677,backlog
+SC,536765,690,Seychelles,République des Seychelles,248,backlog
+SD,192789,729,Sudan,جمهورية السودان,249,backlog
+SE,52822,752,Sweden,Sverige,46,backlog
+SG,536780,702,Singapore,Singapore,65,backlog
+SH,1964272,654,"Saint Helena, Ascension and Tristan da Cunha","St Helena, Ascension & Tristan da Cunha",247,backlog
+SI,218657,705,Slovenia,Slovenija,386,backlog
+SJ,3245620,744,Svalbard and Jan Mayen,Svalbard and Jan Mayen,,backlog
+SK,14296,703,Slovakia,Slovenská republika,421,backlog
+SL,192777,694,Sierra Leone,Republic of Sierra Leone,232,backlog
+SM,54624,674,San Marino,San Marino,378,backlog
+SN,192775,686,Senegal,Senegaal,221,backlog
+SO,192799,706,Somalia,جمهورية الصومال الفدرالية,252,backlog
+SR,287082,740,Suriname,Republiek Suriname,597,backlog
+SS,1656678,728,South Sudan,Republic of South Sudan,211,backlog
+ST,535880,678,São Tomé and Príncipe,República Democrática de São Tomé e Príncipe,239,backlog
+SV,1520612,222,El Salvador,El Salvador,503,backlog
+SX,1231790,534,Sint Maarten,Sint Maarten,1721,backlog
+SY,184840,760,Syria,al-Jumhūriyya al-ʿArabiyya al-Sūriyya,963,backlog
+SZ,88210,748,Eswatini,Umbuso weSwatini,268,backlog
+TC,547479,796,Turks and Caicos Islands,Turks and Caicos Islands,1649,backlog
+TD,2361304,148,Chad,Chad,235,backlog
+TG,192782,768,Togo,Togo,228,backlog
+TH,2067731,764,Thailand,ประเทศไทย,66,backlog
+TJ,214626,762,Tajikistan,Тоҷикистон,992,backlog
+TK,2186600,772,Tokelau,Tokelau,690,backlog
+TL,305142,626,East Timor,East Timor,670,backlog
+TM,223026,795,Turkmenistan,Türkmenistan,993,backlog
+TN,192757,788,Tunisia,تونس,216,backlog
+TO,2186665,776,Tonga,Tonga,676,backlog
+TR,174737,792,Turkey,Türkiye,90,backlog
+TT,555717,780,Trinidad and Tobago,Trinidad and Tobago,1868,backlog
+TV,2177266,798,Tuvalu,Tuvalu,688,backlog
+TW,449220,158,Taiwan,Chûng-fà Mìn-koet,886,backlog
+TZ,195270,834,Tanzania,United Republic of Tanzania,255,backlog
+UA,60199,804,Ukraine,Украина,380,backlog
+UG,192796,800,Uganda,Uganda,256,backlog
+UM,2185386,581,United States Minor Outlying Islands,United States Minor Outlying Islands,,backlog
+US,148838,840,United States of America,United States of America,1,backlog
+UY,287072,858,Uruguay,Uruguay,598,backlog
+UZ,196240,860,Uzbekistan,Oʻzbekiston,998,backlog
+VA,36989,336,Vatican City,Città del Vaticano,379,backlog
+VC,550725,670,Saint Vincent and the Grenadines,Saint Vincent and the Grenadines,1784,backlog
+VE,272644,862,Venezuela,República Bolivariana de Venezuela,58,PREPARING
+VG,285454,92,British Virgin Islands,British Virgin Islands,1284,backlog
+VI,286898,850,United States Virgin Islands,United States Virgin Islands,1340,backlog
+VN,49915,704,Vietnam,Việt Nam,84,backlog
+VU,2177246,548,Vanuatu,Ripablik blong Vanuatu,678,backlog
+WS,1872673,882,Samoa,Independent State of Samoa,685,backlog
+XK,2088990,-608,Kosovo,Republika e Kosovës,383,backlog
+YE,305092,887,Yemen,Yemen,967,backlog
+YT,3388394,175,Mayotte,Mayotte,262,backlog
+ZA,87565,710,South Africa,Suid-Afrika,27,backlog
+ZM,195271,894,Zambia,Republic of Zambia,260,backlog
+ZW,195272,716,Zimbabwe,Zimbabwe,263,backlog
