@@ -1,4 +1,4 @@
-abbrev,name
-A4A,AddressForAll
-OSMcodes,OSMcodes
-DPreserv,Digital Preservation
+abbrev,name,domain
+A4A,AddressForAll,addressforall.org
+OSMcodes,OSMcodes,osm.codes
+DPreserv,Digital Preservation,-
