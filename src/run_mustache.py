@@ -9,19 +9,19 @@ import chevron
 from csv import DictReader
 
 def main(argv):
-   fname_mustache = ''
-   fname_json     = ''
+   fname_mustache =  fname_json     = ''
    fname_csv      = ''
    outputfile     = ''
    tpl_inline     = ''
+   json_inline    = ''
    str_help = "Use the filenames --tpl --json --csv --output or its prefixes:\n " \
               + argv[0] + " -t <template_file> -j <json_file> [-o <outputfile>]\n or\n " \
               + argv[0] + " -t <template_file> -c <csv_file> [-o <outputfile>]\n or\n " \
-              + argv[0] + " --tpl_inline=\"etc\" etc"
+              + argv[0] + " --tpl_inline=\"etc\" --json_inline=\"etc\" etc"
    flag_except=False
    
    try:
-      opts, args = getopt.getopt(argv[1:],"ht:j:c:o:",["tpl=","json=","csv=","output=","tpl_inline="])
+      opts, args = getopt.getopt(argv[1:],"ht:j:c:o:",["tpl=","json=","csv=","output=","tpl_inline=","json_inline="])
    except getopt.GetoptError:
       flag_except=True
    if len(argv) < 2:
@@ -51,6 +51,12 @@ def main(argv):
          f = open(fname_mustache, "w")
          f.write(tpl_inline)
          f.close()
+      elif opt=='--json_inline':
+         json_inline = arg
+         fname_json  = '/tmp/run_mustache.json'
+         f = open(fname_json, "w")
+         f.write(json_inline)
+         f.close()
 
    if fname_mustache=='' or not os.path.isfile(fname_mustache):
      print ('ERR1. Template file not found: '+fname_mustache)
@@ -70,7 +76,6 @@ def main(argv):
       with open(fname_csv, 'r') as read_obj:
           dict_reader = DictReader(read_obj)
           list_of_dict = list(dict_reader)
-          # print(list_of_dict)
           with open(fname_mustache, 'r') as tpl:
               result = chevron.render( tpl, list_of_dict )
    else:
