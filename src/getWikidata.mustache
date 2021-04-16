@@ -1,0 +1,25 @@
+##
+## _Qiso2_{{code}}_
+## {{name}}, first administrative subdivisions and its ISO 3166-2 codes
+##
+
+curl -o wdquery-{{code}}.csv -G 'https://query.wikidata.org/sparql' \
+     --header "Accept: text/csv"  \
+     --data-urlencode query="
+SELECT ?code ?item ?label_en ?label_es
+       ({{#local_prop}}MIN(?numcod){{/local_prop}}{{^local_prop}}''{{/local_prop}} as ?local_id)
+       (MIN(?osmId) as ?osmId_min)
+       (MIN(?LDCode) as ?ldc)
+WHERE
+{
+  ?item wdt:P300 ?code.
+  ?item wdt:P17 wd:{{country_wd_id}}
+  OPTIONAL{?item wdt:P402 ?osmId .}
+  OPTIONAL{?item wdt:P473 ?LDCode.}
+  {{#local_prop}}OPTIONAL{?item wdt:{{local_prop}} ?numcod .} {{/local_prop}}
+  ?item rdfs:label ?label_en filter (lang(?label_en) = 'en').
+  ?item rdfs:label ?label_es filter (lang(?label_es) = 'es').
+}
+GROUP BY ?code ?item ?label_en ?label_es
+ORDER BY ?code
+"

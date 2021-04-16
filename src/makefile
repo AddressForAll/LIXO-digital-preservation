@@ -5,7 +5,12 @@
 ## -- -- VARS -- --
 
 pg_io  =/tmp/pg_io
-pg_uri ="postgres://postgres@localhost/dl03t_main"
+
+pg_uri_root ="postgres://postgres@localhost"
+pg_db       ="dl03t_main"
+pg_dbingest ="ingest2"
+pg_uri      ="$(pg_uri_root)/$(pg_db)"
+pg_uringest ="$(pg_uri_root)/$(pg_dbingest)"
 
 ## -- -- RULES -- --
 
@@ -58,3 +63,39 @@ ins_step1: # LIXO
 	   git -C "$$gitdir" pull; \
 	   cp "$$gitdir/data/"*.csv $(pg_io)/digital-preservartion-XX; \
 	done
+
+##############
+
+# Tests "load and check" of first-level local jurisdictions, maintained by Wikidata and OSM:
+jurisdiction_iso_prepare:  # depends on prepared databases
+	@echo "--- Jurisdiction prepare ingestion database ---"
+	psql $(pg_uringest) -c "CREATE SCHEMA IF NOT EXISTS optim; DROP TABLE optim.jurisdiction;"
+	pg_dump --format plain --table optim.jurisdiction $(pg_uri)  | psql $(pg_uringest)
+
+jurisdiction_iso_run: jurisdiction_iso_prepare get-Latam5.sql get-Latam5.sh run_mustache.py getWikidata.mustache
+	@echo "--- Jurisdiction prepare bash file and LOAD ---"
+	sh get-Latam5.sh
+	ls -l /tmp/pg_io/wdquery-*.csv
+	psql $(pg_uringest) < get-Latam5.sql
+
+# edit SQL and run:
+jurisdiction_iso_run2:  get-Latam5.sql get-Latam5.sh run_mustache.py getWikidata.mustache
+	@echo "--- Jurisdiction prepare2 bash file and LOAD ---"
+	sh get-Latam5.sh
+	ls -l /tmp/pg_io/wdquery-*.csv
+	psql $(pg_uringest) < get-Latam5.sql
+
+jurisdiction_iso_test:
+	psql $(pg_uringest) -c "\
+	WITH RECURSIVE rec_ids AS (\
+	   SELECT osm_id FROM optim.jurisdiction\
+	     WHERE admin_level=2 AND abbrev IN ('BR','CL','CO','EC','PE','VE')\
+	   UNION ALL\
+	   SELECT sa.osm_id\
+	    FROM optim.jurisdiction AS sa\
+	    JOIN rec_ids ON rec_ids.osm_id = sa. parent_id\
+	)\
+	 SELECT isolabel_ext,  osm_id, abbrev, name, name_en, parent_id, lexlabel, wikidata_id, jurisd_base_id, jurisd_local_id, admin_level\
+	 FROM optim.jurisdiction\
+	 WHERE osm_id IN (SELECT osm_id FROM rec_ids) order by 1\
+	"
