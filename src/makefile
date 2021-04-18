@@ -74,16 +74,16 @@ jurisdiction_iso_prepare:  # depends on prepared databases
 
 jurisdiction_iso_run: jurisdiction_iso_prepare get-Latam5.sql get-Latam5.sh run_mustache.py getWikidata.mustache
 	@echo "--- Jurisdiction prepare bash file and LOAD ---"
-	sh get-Latam5.sh
+	sh jurisdiction/get.sh
 	ls -l /tmp/pg_io/wdquery-*.csv
-	psql $(pg_uringest) < get-Latam5.sql
+	psql $(pg_uringest) < jurisdiction/get.sql
 
 # edit SQL and run:
 jurisdiction_iso_run2:  get-Latam5.sql get-Latam5.sh run_mustache.py getWikidata.mustache
 	@echo "--- Jurisdiction prepare2 bash file and LOAD ---"
-	sh get-Latam5.sh
+	sh jurisdiction/get.sh
 	ls -l /tmp/pg_io/wdquery-*.csv
-	psql $(pg_uringest) < get-Latam5.sql
+	psql $(pg_uringest) < jurisdiction/get.sql
 
 jurisdiction_iso_test:
 	psql $(pg_uringest) -c "\
