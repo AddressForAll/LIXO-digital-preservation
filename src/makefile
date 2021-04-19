@@ -12,6 +12,9 @@ pg_dbingest ="ingest2"
 pg_uri      ="$(pg_uri_root)/$(pg_db)"
 pg_uringest ="$(pg_uri_root)/$(pg_dbingest)"
 
+countries = "'BR','CL','CO','EC','PE','VE'"  # conforme jurisdiction/get.sh
+# pendente: incluir em info a propriedade Wikidata dos geocódigos numericos locais. Aí poderemos dispensar a lista de contries e automatizar get.sh pelo SQL.
+
 ## -- -- RULES -- --
 
 ini_all: ini_sql
@@ -19,10 +22,10 @@ ini_all: ini_sql
 ini_sql:
 	@echo "run SQL spcripts"
 	mkdir -p $(pg_io)
-	psql $(pg_uri) < pubLib.sql
-	psql $(pg_uri) < eclusa-step1-ini.sql
+	psql $(pg_uri) < /opt/gits/_a4a/WS/src/pubLib.sql
+	psql $(pg_uri) < eclusa/step1-ini.sql
 	# sh eclusa-step2a-ins.sh
-	psql $(pg_uri) < eclusa-step2b-ins.sql
+	#/opt/gits/WS/src? psql $(pg_uri) < eclusa/step2b-ins.sql
 	touch /opt/lock-mkStatus/digitalPreservation-makeSQL.~feito
 
 ## ECLUSA, commands to execute by root at crontab:
@@ -37,7 +40,7 @@ ecl_run: /opt/lock-mkStatus/digitalPreservation-makeSQL.~feito
 	psql $(pg_uri) -c "SELECT optim.fdw_wgets_script('refresh')"
 	sh $(pg_io)/run_wgets-refresh.sh
 	psql $(pg_uri) -c "SELECT optim.fdw_wgets_refresh(false)" # (donor e donatedpack) true on master
-	sh /opt/gits/digital-preservartion/src/eclusa-mkCpHashFiles.sh
+	sh /opt/gits/digital-preservartion/src/eclusa/mkCpHashFiles.sh
 	psql $(pg_uri) -c "SELECT * FROM eclusa.vw03alldft_cityfolder_ins" # insert into origin
 
 ecl_out: ecl_run
@@ -72,7 +75,7 @@ jurisdiction_iso_prepare:  # depends on prepared databases
 	psql $(pg_uringest) -c "CREATE SCHEMA IF NOT EXISTS optim; DROP TABLE optim.jurisdiction;"
 	pg_dump --format plain --table optim.jurisdiction $(pg_uri)  | psql $(pg_uringest)
 
-jurisdiction_iso_run: jurisdiction_iso_prepare get-Latam5.sql get-Latam5.sh run_mustache.py getWikidata.mustache
+jurisdiction_iso_run: jurisdiction_iso_prepare jurisdiction/get.sh jurisdiction/get.sql run_mustache.py jurisdiction/getWikidata.mustache
 	@echo "--- Jurisdiction prepare bash file and LOAD ---"
 	sh jurisdiction/get.sh
 	ls -l /tmp/pg_io/wdquery-*.csv
@@ -89,7 +92,7 @@ jurisdiction_iso_test:
 	psql $(pg_uringest) -c "\
 	WITH RECURSIVE rec_ids AS (\
 	   SELECT osm_id FROM optim.jurisdiction\
-	     WHERE admin_level=2 AND abbrev IN ('BR','CL','CO','EC','PE','VE')\
+	     WHERE admin_level=2 AND abbrev IN ($(countries))\
 	   UNION ALL\
 	   SELECT sa.osm_id\
 	    FROM optim.jurisdiction AS sa\
