@@ -22,3 +22,11 @@ O primeiro rascunho das subdivisões do país também faz uso da Wikidata.
 
 Ficam destacados uma pressoa habitante do país e um técnico (habitante ou não) como responsáveis pela revisão e homologação dos dados.
 ...
+
+## Scripts
+
+Na pasta `src` usar `make jurisdiction_iso_run` para rodar "do zero" ou:
+
+1.  `make jurisdiction_iso_prepare`: para preparar a base uma cópia da tabela de jurisdições.
+2.  `make jurisdiction_iso_run2`: para rodar em separado, depois de UPDATE ou outro preparo da tabela.
+  
