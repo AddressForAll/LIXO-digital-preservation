@@ -9,19 +9,20 @@ import chevron
 from csv import DictReader
 
 def main(argv):
-   fname_mustache =  fname_json     = ''
-   fname_csv      = ''
+   fname_mustache =  fname_input  =  fname_input0  = ''
+   fname_input_csv  = ''
    outputfile     = ''
    tpl_inline     = ''
    json_inline    = ''
-   str_help = "Use the filenames --tpl --json --csv --output or its prefixes:\n " \
-              + argv[0] + " -t <template_file> -j <json_file> [-o <outputfile>]\n or\n " \
+   str_help = "Use the filenames --tpl --input --csv --output --input0 --tplLast or its prefixes:\n " \
+              + argv[0] + " -t <template_file> -i <input_file> [-o <outputfile>]\n or\n " \
               + argv[0] + " -t <template_file> -c <csv_file> [-o <outputfile>]\n or\n " \
               + argv[0] + " --tpl_inline=\"etc\" --json_inline=\"etc\" etc"
    flag_except=False
-   
+   #print(*argv)
+
    try:
-      opts, args = getopt.getopt(argv[1:],"ht:j:c:o:",["tpl=","json=","csv=","output=","tpl_inline=","json_inline="])
+      opts, args = getopt.getopt(argv[1:],"ht:i:c:o:",["tpl=","input=","input0=","csv=","output=","tpl_inline=","json_inline=","tplLast="])
    except getopt.GetoptError:
       flag_except=True
    if len(argv) < 2:
@@ -32,17 +33,21 @@ def main(argv):
    elif flag_except:
       print ('!BUG ON ARGV!')
       sys.exit(2)
-   
+
    for opt, arg in opts:
       if opt == '-h':
          print (str_help)
          sys.exit()
       elif opt in ("-t", "--tpl"):
          fname_mustache = arg
-      elif opt in ("-j", "--json"): # or yaml!
-         fname_json = arg
+      elif opt in ("-1","--tplLast"):
+         fname_mustacheLast = arg
+      elif opt in ("-0","--input0"): # yaml
+         fname_input0 = arg
+      elif opt in ("-i", "--input"): # json or yaml!
+         fname_input = arg
       elif opt in ("-c", "--csv"):
-         fname_csv = arg      
+         fname_input_csv = arg
       elif opt in ("-o", "--ofile"):
          outputfile = arg
       elif opt=='--tpl_inline':
@@ -51,42 +56,61 @@ def main(argv):
          f = open(fname_mustache, "w")
          f.write(tpl_inline)
          f.close()
-      elif opt=='--json_inline':
+      elif opt=='--input_inline':
          json_inline = arg
-         fname_json  = '/tmp/run_mustache.json'
-         f = open(fname_json, "w")
+         fname_input  = '/tmp/run_mustache.json'
+         f = open(fname_input, "w")
          f.write(json_inline)
          f.close()
 
    if fname_mustache=='' or not os.path.isfile(fname_mustache):
      print ('ERR1. Template file not found: '+fname_mustache)
      sys.exit(2)
-   elif fname_csv=='' and fname_json=='':
-     print ('ERR2. No input file found')
-     sys.exit(2)   
-   elif fname_csv>'' and not os.path.isfile(fname_csv):
-     print ('ERR3. CSV file not found: '+fname_csv)
+   elif fname_input_csv=='' and fname_input=='':
+     print ('ERR2. No input file found,  no csv=%s no x=%s' % (fname_input_csv,fname_input))
      sys.exit(2)
-   elif fname_json>'' and not os.path.isfile(fname_json):
-     print ('ERR3. JSON file not found: '+fname_json)
+   elif fname_input_csv>'' and not os.path.isfile(fname_input_csv):
+     print ('ERR3. CSV file not found: '+fname_input_csv)
+     sys.exit(2)
+   elif fname_input>'' and not os.path.isfile(fname_input):
+     print ('ERR3. JSON or YAML file not found: '+fname_input)
      sys.exit(2)
 
+   if fname_input0>'':
+     fname2  = '/tmp/run_mustache.yaml'
+     filenames = [fname_input0, fname_input]
+     import fileinput
+     with open(fname2, 'w') as fout, fileinput.input(filenames) as fin:
+         for line in fin:
+             fout.write(line)
+     fout.close()
+     fname_input = fname2
 
-   if fname_csv>'':
-      with open(fname_csv, 'r') as read_obj:
+   if fname_mustacheLast>'':
+     fname2  = '/tmp/run_mustache2.mustache'
+     filenames = [fname_mustache, fname_mustacheLast]
+     import fileinput
+     with open(fname2, 'w') as fout, fileinput.input(filenames) as fin:
+         for line in fin:
+             fout.write(line)
+     fout.close()
+     fname_mustache = fname2
+
+   if fname_input_csv>'':
+      with open(fname_input_csv, 'r') as read_obj:
           dict_reader = DictReader(read_obj)
           list_of_dict = list(dict_reader)
           with open(fname_mustache, 'r') as tpl:
               result = chevron.render( tpl, list_of_dict )
    else:
-      result = chevron.main( fname_mustache, fname_json )
-   
+      result = chevron.main( fname_mustache, fname_input )
+
    if outputfile>'':
       print ('Input mustache file: ', fname_mustache)
-      if fname_csv>'':
-         print ('Input CSV file: ', fname_csv)
+      if fname_input_csv>'':
+         print ('Input CSV file: ', fname_input_csv)
       else:
-         print ('Input JSON file: ', fname_json)      
+         print ('Input JSON ot YAML file: ', fname_input)
       print ('Output file: ', outputfile)
       with open(outputfile, "w") as text_file:
          text_file.write(result)
