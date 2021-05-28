@@ -8,6 +8,13 @@ import sys, os, getopt, pprint
 import chevron
 from csv import DictReader
 
+## Mustache-input Standard Library:
+class MsiStdLib:
+   def items_setLast(x,lstLabel='last'):
+      x[ len(x) - 1 ][lstLabel] = True
+msi = MsiStdLib()
+## ## ##
+
 def main(argv):
    fname_mustache =  fname_input  =  fname_input0  = ''
    fname_input_csv  = ''
