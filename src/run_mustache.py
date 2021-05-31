@@ -8,15 +8,28 @@ import sys, os, getopt, pprint
 import chevron
 from csv import DictReader
 
+## ## ##
 ## Mustache-input Standard Library:
-class MsiStdLib:
-   def items_setLast(x,lstLabel='last'):
-      x[ len(x) - 1 ][lstLabel] = True
-msi = MsiStdLib()
+#class MsiStdLib:
+def items_setLast(x,lstLabel='last'):
+  if x:  x[ len(x) - 1 ][lstLabel] = True
+#msi = MsiStdLib()
+def load_data(file, loaderName='SafeLoader'):
+    if loaderName=='csv':
+      print("em construcao CSV")
+    else:
+      try:
+        import yaml
+        loader = getattr(yaml, loaderName)  # not tested
+        return yaml.load(file, Loader=loader)  # not tested
+      except ImportError:
+        import json
+        return json.load(file)
 ## ## ##
 
 def main(argv):
    fname_mustache =  fname_input  =  fname_input0  = ''
+   partials_path = '/opt/gits/_a4a/digital-preservation-BR/src/maketemplates/'
    fname_input_csv  = ''
    outputfile     = ''
    tpl_inline     = ''
@@ -105,12 +118,14 @@ def main(argv):
 
    if fname_input_csv>'':
       with open(fname_input_csv, 'r') as read_obj:
-          dict_reader = DictReader(read_obj)
-          list_of_dict = list(dict_reader)
-          with open(fname_mustache, 'r') as tpl:
-              result = chevron.render( tpl, list_of_dict )
+          listOfDict = list( DictReader(read_obj) )
+          items_setLast(listOfDict)
    else:
-      result = chevron.main( fname_mustache, fname_input )
+      with open(fname_input, 'r') as read_obj:
+          listOfDict = load_data(read_obj)
+          items_setLast(listOfDict['files'])
+   with open(fname_mustache, 'r') as tpl:
+      result = chevron.render( tpl, listOfDict, partials_path, 'mustache' )
 
    if outputfile>'':
       print ('Input mustache file: ', fname_mustache)
