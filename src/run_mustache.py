@@ -124,6 +124,10 @@ def main(argv):
       with open(fname_input, 'r') as read_obj:
           listOfDict = load_data(read_obj)
           items_setLast(listOfDict['files'])
+          listOfDict['layers_keys'] = [*listOfDict['layers'].keys()]
+          #let listWithSeparators = pureList.map( (x, i, arr) => x.toString()+((arr.length-1===i)? '':', ') );
+          #let listOfObjects = pureList.map( x=> ({name:x}) )
+
    with open(fname_mustache, 'r') as tpl:
       result = chevron.render( tpl, listOfDict, partials_path, 'mustache' )
 
