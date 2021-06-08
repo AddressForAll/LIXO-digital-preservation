@@ -29,7 +29,7 @@ def load_data(file, loaderName='SafeLoader'):
 
 def main(argv):
    fname_mustache =  fname_input  =  fname_input0  = ''
-   partials_path = '/opt/gits/_a4a/digital-preservation-BR/src/maketemplates/'
+   basepath = '/opt/gits/_a4a/'
    fname_input_csv  = ''
    outputfile     = ''
    tpl_inline     = ''
@@ -42,7 +42,7 @@ def main(argv):
    #print(*argv)
 
    try:
-      opts, args = getopt.getopt(argv[1:],"ht:i:c:o:",["tpl=","input=","input0=","csv=","output=","tpl_inline=","json_inline=","tplLast="])
+      opts, args = getopt.getopt(argv[1:],"ht:i:c:o:b:",["tpl=","input=","input0=","csv=","output=","tpl_inline=","json_inline=","tplLast=","basepath="])
    except getopt.GetoptError:
       flag_except=True
    if len(argv) < 2:
@@ -58,6 +58,8 @@ def main(argv):
       if opt == '-h':
          print (str_help)
          sys.exit()
+      elif opt in ("-b", "--basepath"):
+         basepath = arg
       elif opt in ("-t", "--tpl"):
          fname_mustache = arg
       elif opt in ("-1","--tplLast"):
@@ -83,6 +85,8 @@ def main(argv):
          f.write(json_inline)
          f.close()
 
+   partials_path = basepath+'digital-preservation-BR/src/maketemplates/'
+  
    if fname_mustache=='' or not os.path.isfile(fname_mustache):
      print ('ERR1. Template file not found: '+fname_mustache)
      sys.exit(2)
