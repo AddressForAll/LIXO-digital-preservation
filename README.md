@@ -1,1 +1,1 @@
-De mudança para http://git.digital-guard.org/preserv-BR
+De mudança para http://git.digital-guard.org/preserv
